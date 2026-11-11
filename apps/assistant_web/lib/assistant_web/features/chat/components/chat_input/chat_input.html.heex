@@ -1,0 +1,17 @@
+<div class="sticky bottom-0 bg-paper pt-3 pb-4">
+  <p class="mb-2 min-h-5 text-reason">{@reason}</p>
+  <form id="composer" class="flex gap-2" phx-change="draft" phx-submit="send">
+    <input
+      type="text"
+      name="text"
+      value={@draft}
+      placeholder="Сообщение"
+      autocomplete="off"
+      class="min-w-0 flex-1 rounded-md border border-[#ccc] bg-white px-[0.7rem] py-[0.55rem] font-[inherit]"
+    />
+    <Button.button type="submit" disabled={@phase.result != :idle}>
+      Отправить
+    </Button.button>
+  </form>
+  <p class="mt-2 min-h-5 text-sm text-user">{caption(@meter)}</p>
+</div>

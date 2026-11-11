@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@import "./figma-tokens.css";
+@import "./fonts.css";
+@import "./markdown.css";
+
+@theme {
+  --font-sans: "News Cycle", ui-sans-serif, sans-serif;
+  --color-paper: #f7f7f5;
+  --color-ink: #1c1c1c;
+  --color-line: #e4e4e0;
+  --color-user: #444444;
+  --color-reason: #8a3b2a;
+}

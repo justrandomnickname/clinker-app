@@ -1,0 +1,50 @@
+@theme {
+  --color-brand: #ffff07;
+  --figma-spacing-xl: 24px;
+  --radius-bttn-md: 12px;
+  --drop-shadow-brand: 0 0 4px var(--color-brand);
+}
+
+@utility p-figma-* {
+  padding: --value(--figma-spacing-*);
+}
+
+@utility px-figma-* {
+  padding-inline: --value(--figma-spacing-*);
+}
+
+@utility py-figma-* {
+  padding-block: --value(--figma-spacing-*);
+}
+
+@utility pt-figma-* {
+  padding-top: --value(--figma-spacing-*);
+}
+
+@utility pr-figma-* {
+  padding-right: --value(--figma-spacing-*);
+}
+
+@utility pb-figma-* {
+  padding-bottom: --value(--figma-spacing-*);
+}
+
+@utility pl-figma-* {
+  padding-left: --value(--figma-spacing-*);
+}
+
+@utility m-figma-* {
+  margin: --value(--figma-spacing-*);
+}
+
+@utility mx-figma-* {
+  margin-inline: --value(--figma-spacing-*);
+}
+
+@utility my-figma-* {
+  margin-block: --value(--figma-spacing-*);
+}
+
+@utility gap-figma-* {
+  gap: --value(--figma-spacing-*);
+}

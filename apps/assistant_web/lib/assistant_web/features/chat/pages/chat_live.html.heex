@@ -1,0 +1,9 @@
+<div class="flex min-h-screen">
+  <ChatList.chat_list chats={@chats} current_id={@chat_id} context={@context} />
+  <main class="flex min-w-0 flex-1 flex-col px-4 pt-4">
+    <div class="mx-auto flex min-h-full w-full max-w-2xl flex-1 flex-col">
+      <ChatWindow.chat_window messages={@messages} />
+      <ChatInput.chat_input draft={@draft} phase={@phase} reason={@reason} meter={@meter} />
+    </div>
+  </main>
+</div>

@@ -1,0 +1,11 @@
+<button
+  type={@type}
+  disabled={@disabled}
+  class={[
+    "inline-flex items-center justify-center overflow-hidden whitespace-nowrap rounded-bttn-md px-figma-xl py-[6px] font-sans text-base leading-normal tracking-[0.96px]",
+    @variant == "primary" && "bg-brand text-black drop-shadow-brand"
+  ]}
+  {@rest}
+>
+  {render_slot(@inner_block)}
+</button>

@@ -1,0 +1,12 @@
+{
+  "adapter": "ollama",
+  "base_url": "http://127.0.0.1:11434",
+  "model": "gemma4:12b",
+  "num_ctx": 8192,
+  "keep_alive": -1,
+  "think": false,
+  "gemini_model": "gemini-3.8-flash",
+  "system_prompt_path": "prompts/system.md",
+  "host": "127.0.0.1",
+  "port": 4000
+}

@@ -1,0 +1,8 @@
+/_build/
+/deps/
+/erl_crash.dump
+*.ez
+.elixir_ls/
+/gemini.key
+/apps/assistant/priv/*.db
+/apps/assistant/priv/*.db-*

@@ -1,0 +1,38 @@
+<aside class="flex h-screen w-56 shrink-0 flex-col border-r border-line bg-white">
+  <.link
+    id="context-label"
+    navigate="/"
+    class="mx-2 mt-3 block truncate px-3 text-left text-sm text-user no-underline"
+  >
+    {label(@context)}
+  </.link>
+  
+  <button
+    type="button"
+    id="new-chat"
+    phx-click="new_chat"
+    class="mx-2 mt-2 rounded px-3 py-2 text-left"
+  >
+    Начать новый чат
+  </button>
+  
+  <div class="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-2">
+    <.async_result :let={chats} assign={@chats}>
+      <:failed>Не удалось прочитать чаты</:failed>
+      
+      <button
+        :for={chat <- chats}
+        type="button"
+        id={"chat-#{chat.id}"}
+        phx-click="select_chat"
+        phx-value-id={chat.id}
+        class={[
+          "truncate rounded px-3 py-2 text-left",
+          chat.id == @current_id && "bg-paper font-medium"
+        ]}
+      >
+        {chat.title}
+      </button>
+    </.async_result>
+  </div>
+</aside>
