@@ -23,6 +23,7 @@ defmodule Assistant.MixProject do
       {:assistant_inference, in_umbrella: true},
       {:ecto_sql, "~> 3.12"},
       {:ecto_sqlite3, "~> 0.17"},
+      {:postgrex, "~> 0.19"},
       {:phoenix_pubsub, "~> 2.1"},
       {:plug, "~> 1.16", only: :test}
     ]
