@@ -81,6 +81,7 @@ if config_env() == :prod do
 
   config :assistant_web, AssistantWeb.Endpoint,
     url: url,
+    check_origin: true,
     http: [
       ip: {0, 0, 0, 0},
       port: port,
