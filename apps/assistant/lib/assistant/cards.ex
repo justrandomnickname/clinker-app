@@ -843,8 +843,7 @@ defmodule Assistant.Cards do
 
     case request(:get, url, token, "application/vnd.github+json", redirect: false, decode_body: false) do
       {:ok, %{status: status} = resp} when status in [301, 302, 303, 307, 308] ->
-        location = header(resp.headers, "location")
-        download_location(location)
+        download_location(header(resp.headers, "location"), token)
 
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         {:ok, nil, body}
@@ -901,7 +900,7 @@ defmodule Assistant.Cards do
 
     case request(:get, url, token, "application/vnd.github+json", redirect: false, decode_body: false) do
       {:ok, %{status: status} = resp} when status in [301, 302, 303, 307, 308] ->
-        download_location(header(resp.headers, "location"))
+        download_location(header(resp.headers, "location"), token)
 
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         {:ok, nil, body}
@@ -916,13 +915,19 @@ defmodule Assistant.Cards do
     end
   end
 
-  defp download_location(location) when is_binary(location) and location != "" do
-    case request_plain(:get, location, decode_body: false, redirect: true) do
+  defp download_location(location, token) when is_binary(location) and location != "" do
+    headers = [
+      {"authorization", "Bearer " <> token},
+      {"user-agent", "clinker-cards"},
+      {"accept", "application/vnd.github+json"}
+    ]
+
+    case request_plain(:get, location, headers: headers, decode_body: false, redirect: true) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         {:ok, commit_sha(location), body}
 
-      {:ok, %{status: status}} ->
-        Logger.warning("cards archive http #{status}")
+      {:ok, %{status: status, body: body}} ->
+        log_github("archive", status, body)
         :error
 
       {:error, _} ->
@@ -931,7 +936,7 @@ defmodule Assistant.Cards do
     end
   end
 
-  defp download_location(_), do: :error
+  defp download_location(_location, _token), do: :error
 
   defp remote_tip(owner, repo, token) do
     url = "https://api.github.com/repos/#{owner}/#{repo}/commits/main"
@@ -1065,21 +1070,25 @@ defmodule Assistant.Cards do
   end
 
   defp header(headers, name) when is_map(headers) do
-    headers
-    |> Map.get(name, Map.get(headers, String.to_charlist(name), []))
-    |> List.wrap()
-    |> List.first()
+    Enum.find_value(headers, fn {key, value} ->
+      if String.downcase(to_string(key)) == name, do: header_text(value)
+    end)
   end
 
   defp header(headers, name) when is_list(headers) do
     Enum.find_value(headers, fn
       {key, value} ->
-        if String.downcase(to_string(key)) == name, do: List.wrap(value) |> List.first()
+        if String.downcase(to_string(key)) == name, do: header_text(value)
 
       _ ->
         nil
     end)
   end
+
+  defp header_text(value) when is_binary(value), do: value
+  defp header_text([value | _]) when is_binary(value), do: value
+  defp header_text(value) when is_list(value), do: List.to_string(value)
+  defp header_text(_), do: nil
 
   defp commit_sha(location) do
     base = location |> URI.parse() |> Map.get(:path, "") |> Path.basename()
