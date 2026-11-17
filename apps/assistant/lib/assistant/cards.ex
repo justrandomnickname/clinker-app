@@ -823,6 +823,9 @@ defmodule Assistant.Cards do
             :error -> :error
           end
 
+        {:files, files} ->
+          {:ok, known_tip(owner, repo, token), files}
+
         :error ->
           :error
       end
@@ -839,6 +842,13 @@ defmodule Assistant.Cards do
   end
 
   defp download(owner, repo, token) do
+    case archive(owner, repo, token) do
+      :error -> via_contents(owner, repo, token)
+      other -> other
+    end
+  end
+
+  defp archive(owner, repo, token) do
     url = "https://api.github.com/repos/#{owner}/#{repo}/tarball/main"
 
     case request(:get, url, token, "application/vnd.github+json", redirect: false, decode_body: false) do
@@ -859,6 +869,71 @@ defmodule Assistant.Cards do
         Logger.warning("cards archive transport error")
         :error
     end
+  end
+
+  defp via_contents(owner, repo, token) do
+    url = "https://api.github.com/repos/#{owner}/#{repo}/contents/cards?ref=main"
+
+    case request(:get, url, token, "application/vnd.github+json", []) do
+      {:ok, %{status: 200, body: entries}} when is_list(entries) ->
+        {:files, read_entries(owner, repo, token, entries)}
+
+      {:ok, %{status: 404}} ->
+        if repo_visible?(owner, repo, token), do: :empty, else: :error
+
+      {:ok, %{status: status, body: body}} ->
+        log_github("cards", status, body)
+        :error
+
+      {:error, _} ->
+        Logger.warning("cards directory transport error")
+        :error
+    end
+  end
+
+  defp read_entries(owner, repo, token, entries) do
+    Enum.flat_map(entries, fn
+      %{"type" => "file", "name" => name} ->
+        case Regex.run(~r/^([a-z0-9-]{1,64})\.md$/, name) do
+          [_, slug] ->
+            case file_body(owner, repo, token, slug) do
+              {:ok, content} -> [{slug, content}]
+              :error -> []
+            end
+
+          _ ->
+            []
+        end
+
+      _ ->
+        []
+    end)
+  end
+
+  defp file_body(owner, repo, token, slug) do
+    url = "https://api.github.com/repos/#{owner}/#{repo}/contents/cards/#{slug}.md"
+
+    case request(:get, url, token, "application/vnd.github+json", []) do
+      {:ok, %{status: 200, body: %{"content" => content, "encoding" => "base64"}}}
+      when is_binary(content) ->
+        case Base.decode64(content, ignore: :whitespace) do
+          {:ok, binary} -> {:ok, binary}
+          :error -> :error
+        end
+
+      {:ok, %{status: status, body: body}} ->
+        log_github("file", status, body)
+        :error
+
+      {:error, _} ->
+        :error
+    end
+  end
+
+  defp repo_visible?(owner, repo, token) do
+    url = "https://api.github.com/repos/#{owner}/#{repo}"
+
+    match?({:ok, %{status: 200}}, request(:get, url, token, "application/vnd.github+json", []))
   end
 
   defp empty_repo?(owner, repo, token) do
