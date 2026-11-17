@@ -91,3 +91,26 @@ if config_env() == :prod do
     secret_key_base: secret_key_base,
     server: true
 end
+
+blank = fn
+  nil ->
+    nil
+
+  text ->
+    text = String.trim(text)
+    if text == "", do: nil, else: text
+end
+
+cards_root =
+  if config_env() == :prod do
+    "/tmp/cards"
+  else
+    Path.join(System.tmp_dir!(), "clinker-cards")
+  end
+
+config :assistant, :cards, %{
+  root: cards_root,
+  repo_url: blank.(System.get_env("CARDS_REPO_URL")),
+  git_token: blank.(System.get_env("CARDS_GIT_TOKEN")),
+  mcp_token: blank.(System.get_env("MEMORY_MCP_TOKEN"))
+}

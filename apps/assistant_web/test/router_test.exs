@@ -53,6 +53,50 @@ defmodule AssistantWeb.RouterTest do
     assert json_response(post_json("/api/chat", %{prompt: 1}), 400)["error"] =~ "prompt"
   end
 
+  test "an empty mcp token closes the entrance" do
+    conn = mcp_post(%{"jsonrpc" => "2.0", "id" => 1, "method" => "tools/list"}, nil)
+    assert conn.status == 401
+    refute conn.resp_body =~ "list_cards"
+    refute conn.resp_body =~ "slug"
+  end
+
+  test "a wrong token is refused without card text" do
+    previous = Application.get_env(:assistant, :cards)
+    Application.put_env(:assistant, :cards, %{previous | mcp_token: "test-token"})
+    on_exit(fn -> Application.put_env(:assistant, :cards, previous) end)
+
+    conn =
+      mcp_post(
+        %{
+          "jsonrpc" => "2.0",
+          "id" => 1,
+          "method" => "tools/call",
+          "params" => %{"name" => "get_card", "arguments" => %{"slug" => "genserver"}}
+        },
+        "Bearer wrong-token"
+      )
+
+    assert conn.status == 401
+    refute conn.resp_body =~ "genserver"
+    refute conn.resp_body =~ "title"
+  end
+
+  defp mcp_post(body, auth) do
+    conn =
+      build_conn()
+      |> put_req_header("content-type", "application/json")
+      |> put_req_header("accept", "application/json, text/event-stream")
+
+    conn =
+      if is_binary(auth) do
+        put_req_header(conn, "authorization", auth)
+      else
+        conn
+      end
+
+    post(conn, "/mcp", Jason.encode!(body))
+  end
+
   defp post_json(path, body) do
     build_conn()
     |> put_req_header("content-type", "application/json")

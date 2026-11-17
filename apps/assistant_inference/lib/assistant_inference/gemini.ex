@@ -61,7 +61,7 @@ defmodule AssistantInference.Gemini do
     with {:ok, key} <- fetch_key(),
          {:ok, model} <- model_id(model()),
          {:ok, resp} <- post(model, key, request) do
-      pump(resp, "", parent, ref, deadline, {0, 0}, false)
+      pump(resp, "", parent, ref, deadline, empty_acc())
     else
       :error -> {:error, :unavailable}
       {:error, reason} -> {:error, reason}
@@ -90,20 +90,33 @@ defmodule AssistantInference.Gemini do
     end
   end
 
-  defp body(%{system: system, contents: contents}) do
+  defp body(%{system: system, contents: contents} = request) do
     payload = %{
       "contents" => contents,
       "generationConfig" => %{"thinkingConfig" => %{"includeThoughts" => true}}
     }
 
-    if is_binary(system) and system != "" do
-      Map.put(payload, "systemInstruction", %{"parts" => [%{"text" => system}]})
-    else
-      payload
+    payload =
+      if is_binary(system) and system != "" do
+        Map.put(payload, "systemInstruction", %{"parts" => [%{"text" => system}]})
+      else
+        payload
+      end
+
+    case Map.get(request, :tools) do
+      tools when is_list(tools) and tools != [] ->
+        Map.put(payload, "tools", [%{"functionDeclarations" => tools}])
+
+      _ ->
+        payload
     end
   end
 
-  defp pump(resp, buffer, parent, ref, deadline, usage, saw?) do
+  defp empty_acc do
+    %{usage: {0, 0}, saw: false, parts: [], pending: [], calls: false}
+  end
+
+  defp pump(resp, buffer, parent, ref, deadline, acc) do
     timeout = idle_timeout(deadline)
 
     if timeout <= 0 do
@@ -120,7 +133,7 @@ defmodule AssistantInference.Gemini do
           {:error, :cancelled}
 
         message ->
-          handle_message(resp, message, buffer, parent, ref, deadline, usage, saw?)
+          handle_message(resp, message, buffer, parent, ref, deadline, acc)
       after
         timeout ->
           cancel(resp)
@@ -129,18 +142,15 @@ defmodule AssistantInference.Gemini do
     end
   end
 
-  defp handle_message(resp, message, buffer, parent, ref, deadline, usage, saw?) do
+  defp handle_message(resp, message, buffer, parent, ref, deadline, acc) do
     case Req.parse_message(resp, message) do
       {:ok, parts} ->
-        case consume(parts, buffer, parent, ref, usage, saw?) do
-          {:done, usage, true} ->
-            {:ok, usage}
+        case consume(parts, buffer, parent, ref, acc) do
+          {:done, acc} ->
+            finish(acc)
 
-          {:done, _usage, false} ->
-            {:ok, {0, 0}}
-
-          {:cont, buffer, usage, saw?} ->
-            pump(resp, buffer, parent, ref, deadline, usage, saw?)
+          {:cont, buffer, acc} ->
+            pump(resp, buffer, parent, ref, deadline, acc)
 
           {:error, reason} ->
             cancel(resp)
@@ -152,33 +162,32 @@ defmodule AssistantInference.Gemini do
         {:error, :transport}
 
       :unknown ->
-        pump(resp, buffer, parent, ref, deadline, usage, saw?)
+        pump(resp, buffer, parent, ref, deadline, acc)
     end
   end
 
-  defp consume(parts, buffer, parent, ref, usage, saw?) do
-    Enum.reduce_while(parts, {:cont, buffer, usage, saw?}, fn part,
-                                                              {:cont, buffer, usage, saw?} ->
+  defp consume(parts, buffer, parent, ref, acc) do
+    Enum.reduce_while(parts, {:cont, buffer, acc}, fn part, {:cont, buffer, acc} ->
       case part do
         {:data, data} ->
           {events, rest} = Decoder.take(buffer, data)
 
-          case forward(events, parent, ref, usage, saw?) do
-            {:ok, usage, saw?} -> {:cont, {:cont, rest, usage, saw?}}
+          case forward(events, parent, ref, acc) do
+            {:ok, acc} -> {:cont, {:cont, rest, acc}}
             {:error, reason} -> {:halt, {:error, reason}}
           end
 
         :done ->
-          {:halt, {:done, usage, saw?}}
+          {:halt, {:done, acc}}
 
         _ ->
-          {:cont, {:cont, buffer, usage, saw?}}
+          {:cont, {:cont, buffer, acc}}
       end
     end)
   end
 
-  defp forward(events, parent, ref, usage, saw?) do
-    Enum.reduce_while(events, {:ok, usage, saw?}, fn event, {:ok, usage, saw?} ->
+  defp forward(events, parent, ref, acc) do
+    Enum.reduce_while(events, {:ok, acc}, fn event, {:ok, acc} ->
       case event do
         :invalid_json ->
           {:halt, {:error, :invalid_response}}
@@ -188,17 +197,74 @@ defmodule AssistantInference.Gemini do
 
         {:text, text} ->
           send(parent, {:inference_chunk, ref, {:text, text}})
-          {:cont, {:ok, usage, saw?}}
+          {:cont, {:ok, on_text(acc, text)}}
 
         {:thinking, text} ->
           send(parent, {:inference_chunk, ref, {:thinking, text}})
-          {:cont, {:ok, usage, saw?}}
+          {:cont, {:ok, on_thought(acc, text)}}
+
+        {:echo, part} ->
+          {:cont, {:ok, on_echo(acc, part)}}
+
+        {:function_call, part} ->
+          {:cont, {:ok, on_call(acc, part)}}
 
         {:usage, prompt, eval} ->
           send(parent, {:inference_chunk, ref, {:usage, prompt, eval}})
-          {:cont, {:ok, {prompt, eval}, true}}
+          {:cont, {:ok, %{acc | usage: {prompt, eval}, saw: true}}}
       end
     end)
+  end
+
+  defp finish(acc) do
+    acc = flush_pending(acc)
+
+    cond do
+      acc.calls -> {:tools, acc.usage, acc.parts}
+      acc.saw -> {:ok, acc.usage}
+      true -> {:ok, {0, 0}}
+    end
+  end
+
+  defp on_text(acc, text), do: %{acc | pending: merge_pending(acc.pending, :text, text)}
+  defp on_thought(acc, text), do: %{acc | pending: merge_pending(acc.pending, :thought, text)}
+
+  defp merge_pending([{:text, prev} | rest], :text, text), do: [{:text, prev <> text} | rest]
+  defp merge_pending([{:thought, prev} | rest], :thought, text), do: [{:thought, prev <> text} | rest]
+  defp merge_pending(pending, kind, text), do: [{kind, text} | pending]
+
+  defp on_call(acc, part) do
+    acc = flush_pending(acc)
+    %{acc | calls: true, parts: acc.parts ++ [part]}
+  end
+
+  defp on_echo(acc, part) do
+    acc = flush_pending(%{acc | pending: drop_echoed(acc.pending, part)})
+    %{acc | parts: acc.parts ++ [part]}
+  end
+
+  defp drop_echoed(pending, %{"text" => text, "thought" => true}) do
+    Enum.reject(pending, &match?({:thought, ^text}, &1))
+  end
+
+  defp drop_echoed(pending, %{"text" => text}) do
+    Enum.reject(pending, &match?({:text, ^text}, &1))
+  end
+
+  defp drop_echoed(pending, _part), do: pending
+
+  defp flush_pending(%{pending: []} = acc), do: acc
+
+  defp flush_pending(acc) do
+    parts =
+      acc.pending
+      |> Enum.reverse()
+      |> Enum.map(fn
+        {:text, text} -> %{"text" => text}
+        {:thought, text} -> %{"text" => text, "thought" => true}
+      end)
+
+    %{acc | pending: [], parts: acc.parts ++ parts}
   end
 
   defp cancel(resp) do

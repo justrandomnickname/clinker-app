@@ -16,6 +16,10 @@ defmodule AssistantWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  pipeline :mcp do
+    plug(:accepts, ["json"])
+  end
+
   scope "/", AssistantWeb do
     pipe_through(:browser)
 
@@ -23,7 +27,17 @@ defmodule AssistantWeb.Router do
       live("/", Features.Context.Pages.ContextLive)
       live("/chat", Features.Chat.Pages.ChatLive)
       live("/chat/:context", Features.Chat.Pages.ChatLive)
+      live("/cards", Features.Cards.Pages.CardsLive)
+      live("/cards/:slug", Features.Cards.Pages.CardsLive)
     end
+  end
+
+  scope "/", AssistantWeb do
+    pipe_through(:mcp)
+
+    post("/mcp", McpController, :call)
+    get("/mcp", McpController, :method_not_allowed)
+    delete("/mcp", McpController, :method_not_allowed)
   end
 
   scope "/api", AssistantWeb do

@@ -13,7 +13,7 @@ defmodule Assistant.MixProject do
 
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :crypto, :inets, :ssl],
       mod: {Assistant.Application, []}
     ]
   end
@@ -25,7 +25,8 @@ defmodule Assistant.MixProject do
       {:ecto_sqlite3, "~> 0.17"},
       {:postgrex, "~> 0.19"},
       {:phoenix_pubsub, "~> 2.1"},
-      {:plug, "~> 1.16", only: :test}
+      {:plug, "~> 1.16", only: :test},
+      {:req, "~> 0.5"}
     ]
   end
 end

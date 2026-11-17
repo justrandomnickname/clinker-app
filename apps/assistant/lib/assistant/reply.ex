@@ -80,7 +80,11 @@ defmodule Assistant.Reply do
       dirty: false,
       timer: nil,
       manual: nil,
-      last_usage: {0, 0}
+      last_usage: {0, 0},
+      tool_log: [],
+      base_contents: nil,
+      card_opens: 0,
+      tool_rounds: 0
     }
   end
 

@@ -80,6 +80,10 @@ defmodule Assistant.Reply.Decision do
   def result(state, {:ok, usage}), do: succeed(%{state | task: nil, last_usage: usage})
   def result(state, {:error, reason}), do: fail(%{state | task: nil}, reason)
 
+  def result(state, {:tools, usage, parts}) do
+    tool_round(%{state | task: nil, last_usage: usage}, parts)
+  end
+
   def crashed(state), do: fail(%{state | task: nil}, :crash)
 
   def flush(%{phase: :idle} = state), do: state
@@ -130,6 +134,13 @@ defmodule Assistant.Reply.Decision do
   end
 
   defp start_task(state, request) do
+    state =
+      if is_list(state.base_contents) do
+        state
+      else
+        %{state | base_contents: request.contents}
+      end
+
     ref = make_ref()
     parent = self()
     deadline = state.deadline || System.monotonic_time(:millisecond) + @turn_ms
@@ -205,6 +216,66 @@ defmodule Assistant.Reply.Decision do
 
     reply_manual(state, {:error, reason})
     settle(state)
+  end
+
+  defp tool_round(state, parts) do
+    state = state |> Delivery.flush_now() |> Delivery.usage_commit()
+    calls = function_calls(parts)
+
+    cond do
+      calls == [] ->
+        succeed(state)
+
+      state.tool_rounds >= 8 ->
+        if Text.full_text(state) == "" and Text.full_thinking(state) == "" do
+          fail(state, :empty_response)
+        else
+          succeed(state)
+        end
+
+      true ->
+        {responses, state} = Enum.map_reduce(calls, state, &perform/2)
+
+        state = %{
+          state
+          | tool_log:
+              state.tool_log ++
+                [
+                  %{"role" => "model", "parts" => parts},
+                  %{"role" => "user", "parts" => responses}
+                ],
+            tool_rounds: state.tool_rounds + 1
+        }
+
+        begin_attempt(state, state.phase, state.attempts)
+    end
+  end
+
+  defp function_calls(parts) do
+    Enum.flat_map(parts, fn
+      %{"functionCall" => %{"name" => name} = call} when is_binary(name) ->
+        [{name, call["args"] || %{}}]
+
+      _ ->
+        []
+    end)
+  end
+
+  defp perform({"get_card", _args}, %{card_opens: opens} = state) when opens >= 3 do
+    {%{"ok" => false, "error" => "За ход можно открыть не больше трёх карточек."}, state}
+  end
+
+  defp perform({name, args}, state) do
+    state = if name == "get_card", do: %{state | card_opens: state.card_opens + 1}, else: state
+    {Assistant.cards_pack(safe_call(name, args)), state}
+  end
+
+  defp safe_call(name, args) do
+    Assistant.cards_call(name, args)
+  rescue
+    _ -> {:error, :unavailable}
+  catch
+    :exit, _ -> {:error, :unavailable}
   end
 
   defp settle(state) do

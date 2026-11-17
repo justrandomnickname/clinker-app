@@ -48,15 +48,48 @@ defmodule AssistantInference.Gemini.Decoder do
     get_in(payload, ["candidates", Access.at(0), "content", "parts"]) || []
   end
 
-  defp part_event(%{"thought" => true, "text" => text}) when is_binary(text) and text != "" do
-    [{:thinking, text}]
+  defp part_event(%{"functionCall" => %{"name" => name}} = part) when is_binary(name) do
+    [{:function_call, normalize_call(part)}]
   end
 
-  defp part_event(%{"text" => text}) when is_binary(text) and text != "" do
-    [{:text, text}]
+  defp part_event(%{"thought" => true, "text" => text} = part) when is_binary(text) and text != "" do
+    [{:thinking, text} | echo(part)]
+  end
+
+  defp part_event(%{"text" => text} = part) when is_binary(text) and text != "" do
+    [{:text, text} | echo(part)]
+  end
+
+  defp part_event(%{"thoughtSignature" => sig} = part) when is_binary(sig) and sig != "" do
+    [{:echo, part}]
   end
 
   defp part_event(_), do: []
+
+  defp echo(%{"thoughtSignature" => sig} = part) when is_binary(sig) and sig != "" do
+    [{:echo, part}]
+  end
+
+  defp echo(_), do: []
+
+  defp normalize_call(%{"functionCall" => call} = part) do
+    args =
+      case call["args"] do
+        map when is_map(map) ->
+          map
+
+        text when is_binary(text) ->
+          case Jason.decode(text) do
+            {:ok, map} when is_map(map) -> map
+            _ -> %{}
+          end
+
+        _ ->
+          %{}
+      end
+
+    put_in(part, ["functionCall", "args"], args)
+  end
 
   defp usage(nil), do: nil
 

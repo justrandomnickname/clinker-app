@@ -1,0 +1,79 @@
+<div class="flex min-h-screen">
+  <aside class="flex h-screen w-72 shrink-0 flex-col border-r border-line bg-white">
+    <.link navigate="/" class="mx-2 mt-3 block truncate px-3 text-left text-sm text-user no-underline">
+      clinker
+    </.link>
+    <form id="card-tags" phx-change="filter" phx-submit="filter" class="px-2 pt-3">
+      <input
+        type="text"
+        name="tags"
+        value={@tag_draft}
+        placeholder="теги"
+        autocomplete="off"
+        class="w-full rounded-md border border-line bg-white px-3 py-2"
+      />
+    </form>
+    <div id="card-list" class="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-2">
+      <.async_result :let={cards} assign={@cards}>
+        <:loading>Загрузка</:loading>
+        <:failed>Не удалось прочитать карточки</:failed>
+        <p :if={cards == :unavailable} id="cards-status" class="px-3 py-2 text-reason">
+          Хранилище недоступно
+        </p>
+        <p :if={cards == {:cards, []}} class="px-3 py-2">Пока пусто</p>
+        <div :if={match?({:cards, [_ | _]}, cards)}>
+          <.link
+            :for={card <- elem(cards, 1)}
+            id={"card-#{card.slug}"}
+            navigate={"/cards/" <> card.slug}
+            class={[
+              "block rounded px-3 py-2 no-underline",
+              card.slug == @slug && "bg-paper font-medium"
+            ]}
+          >
+            <span class="block truncate">{card.title || card.slug}</span>
+            <span class="block truncate text-sm text-user">
+              {card.slug} {card.source} {Enum.join(card.tags, " ")}
+              <span :if={card.broken}>битый</span>
+            </span>
+          </.link>
+        </div>
+      </.async_result>
+    </div>
+  </aside>
+  <main class="flex min-w-0 flex-1 flex-col px-4 pt-4">
+    <div class="mx-auto flex w-full max-w-2xl flex-1 flex-col">
+      <%= if @slug do %>
+        <.async_result :let={card} assign={@card}>
+          <:loading>Загрузка</:loading>
+          <:failed :let={reason}>
+            <p :if={reason == :missing}>Нет такой карточки</p>
+            <p :if={reason == :unavailable}>Хранилище недоступно</p>
+            <p :if={reason not in [:missing, :unavailable]}>Не удалось прочитать карточку</p>
+          </:failed>
+          <article id="card-body">
+            <h1 class="text-lg">{card.title || card.slug}</h1>
+            <p class="text-sm text-user">
+              {card.slug} {card.source} {Enum.join(card.tags, " ")}
+              <span :if={card.broken}>битый файл</span>
+            </p>
+            <pre :if={card.broken} class="mt-4 whitespace-pre-wrap">{card.body}</pre>
+            <div :if={!card.broken} class="markdown mt-4">{Log.html(card.body)}</div>
+            <p :if={card.incoming != []} class="mt-6 text-sm">
+              Ссылаются
+              <.link
+                :for={slug <- card.incoming}
+                navigate={"/cards/" <> slug}
+                class="ml-2 text-user"
+              >
+                {slug}
+              </.link>
+            </p>
+          </article>
+        </.async_result>
+      <% else %>
+        <p class="text-user">Выберите карточку</p>
+      <% end %>
+    </div>
+  </main>
+</div>
