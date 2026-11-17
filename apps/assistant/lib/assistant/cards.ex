@@ -214,12 +214,12 @@ defmodule Assistant.Cards do
 
   defp sync(%{tip: tip} = state) do
     with {:ok, url, token} <- credentials(),
-         {:ok, owner, repo} <- repo(url),
-         {:ok, remote} <- remote_tip(owner, repo, token) do
-      if remote == tip do
-        {:ok, state}
-      else
-        fetch_into(state, url, token)
+         {:ok, owner, repo} <- repo(url) do
+      case remote_tip(owner, repo, token) do
+        {:ok, ^tip} -> {:ok, state}
+        {:ok, _remote} -> fetch_into(state, url, token)
+        :empty -> {:ok, state}
+        :error -> :error
       end
     else
       _ -> :error
@@ -812,19 +812,29 @@ defmodule Assistant.Cards do
   end
 
   defp fetch(url, token) do
-    with {:ok, owner, repo} <- repo(url),
-         {:ok, tip, body} <- download(owner, repo, token),
-         {:ok, files} <- unpack(body) do
-      tip =
-        tip ||
-          case remote_tip(owner, repo, token) do
-            {:ok, sha} -> sha
-            :error -> nil
+    with {:ok, owner, repo} <- repo(url) do
+      case download(owner, repo, token) do
+        :empty ->
+          {:ok, nil, []}
+
+        {:ok, tip, body} ->
+          case unpack(body) do
+            {:ok, files} -> {:ok, tip || known_tip(owner, repo, token), files}
+            :error -> :error
           end
 
-      {:ok, tip, files}
+        :error ->
+          :error
+      end
     else
       _ -> :error
+    end
+  end
+
+  defp known_tip(owner, repo, token) do
+    case remote_tip(owner, repo, token) do
+      {:ok, sha} -> sha
+      _ -> nil
     end
   end
 
@@ -839,8 +849,65 @@ defmodule Assistant.Cards do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         {:ok, nil, body}
 
-      {:ok, %{status: status}} ->
-        Logger.warning("cards archive http #{status}")
+      {:ok, %{status: 404, body: body}} ->
+        missing_archive(owner, repo, token, body)
+
+      {:ok, %{status: status, body: body}} ->
+        log_github("archive", status, body)
+        :error
+
+      {:error, _} ->
+        Logger.warning("cards archive transport error")
+        :error
+    end
+  end
+
+  defp empty_repo?(owner, repo, token) do
+    url = "https://api.github.com/repos/#{owner}/#{repo}"
+
+    case request(:get, url, token, "application/vnd.github+json", []) do
+      {:ok, %{status: 200, body: %{"size" => 0}}} -> true
+      _ -> false
+    end
+  end
+
+  defp missing_archive(owner, repo, token, archive_body) do
+    url = "https://api.github.com/repos/#{owner}/#{repo}"
+
+    case request(:get, url, token, "application/vnd.github+json", []) do
+      {:ok, %{status: 200, body: %{"size" => 0}}} ->
+        :empty
+
+      {:ok, %{status: 200, body: %{"default_branch" => branch, "size" => size}}}
+      when is_binary(branch) and branch != "main" and is_integer(size) and size > 0 ->
+        download_ref(owner, repo, token, branch)
+
+      {:ok, %{status: 200}} ->
+        log_github("archive", 404, archive_body)
+        :error
+
+      {:ok, %{status: status, body: body}} ->
+        log_github("repo", status, body)
+        :error
+
+      {:error, _} ->
+        Logger.warning("cards repo transport error")
+        :error
+    end
+  end
+
+  defp download_ref(owner, repo, token, branch) do
+    url = "https://api.github.com/repos/#{owner}/#{repo}/tarball/#{branch}"
+
+    case request(:get, url, token, "application/vnd.github+json", redirect: false, decode_body: false) do
+      {:ok, %{status: status} = resp} when status in [301, 302, 303, 307, 308] ->
+        download_location(header(resp.headers, "location"))
+
+      {:ok, %{status: 200, body: body}} when is_binary(body) ->
+        {:ok, nil, body}
+
+      {:ok, %{status: status, body: body}} ->
+        log_github("archive", status, body)
         :error
 
       {:error, _} ->
@@ -872,20 +939,28 @@ defmodule Assistant.Cards do
     case request(:get, url, token, "application/vnd.github.sha", decode_body: false) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         sha = String.trim(body)
-        if sha =~ ~r/^[0-9a-f]{40}$/, do: {:ok, sha}, else: remote_tip_json(url, token)
+        if sha =~ ~r/^[0-9a-f]{40}$/, do: {:ok, sha}, else: remote_tip_json(owner, repo, token)
 
       _ ->
-        remote_tip_json(url, token)
+        remote_tip_json(owner, repo, token)
     end
   end
 
-  defp remote_tip_json(url, token) do
+  defp remote_tip_json(owner, repo, token) do
+    url = "https://api.github.com/repos/#{owner}/#{repo}/commits/main"
+
     case request(:get, url, token, "application/vnd.github+json", []) do
       {:ok, %{status: 200, body: %{"sha" => sha}}} when is_binary(sha) ->
         {:ok, sha}
 
-      {:ok, %{status: status}} ->
-        Logger.warning("cards tip http #{status}")
+      {:ok, %{status: 409}} ->
+        :empty
+
+      {:ok, %{status: 404}} ->
+        if empty_repo?(owner, repo, token), do: :empty, else: :error
+
+      {:ok, %{status: status, body: body}} ->
+        log_github("tip", status, body)
         :error
 
       {:error, _} ->
@@ -912,8 +987,8 @@ defmodule Assistant.Cards do
       {:ok, %{status: status}} when status in [409, 422] ->
         {:error, :conflict}
 
-      {:ok, %{status: status}} ->
-        Logger.warning("cards commit http #{status}")
+      {:ok, %{status: status, body: body}} ->
+        log_github("commit", status, body)
         {:error, :push}
 
       {:error, _} ->
@@ -948,6 +1023,25 @@ defmodule Assistant.Cards do
         _ -> []
       end
     end)
+  end
+
+  defp log_github(what, status, body) do
+    message =
+      case body do
+        text when is_binary(text) ->
+          case Jason.decode(text) do
+            {:ok, %{"message" => message}} when is_binary(message) -> message
+            _ -> ""
+          end
+
+        %{"message" => message} when is_binary(message) ->
+          message
+
+        _ ->
+          ""
+      end
+
+    Logger.warning("cards #{what} http #{status} #{String.slice(message, 0, 120)}")
   end
 
   defp request(method, url, token, accept, extra) do
