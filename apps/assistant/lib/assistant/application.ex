@@ -12,8 +12,7 @@ defmodule Assistant.Application do
         {Registry, keys: :unique, name: Assistant.Reply.Registry},
         {DynamicSupervisor, name: Assistant.Reply.Supervisor, strategy: :one_for_one},
         {Phoenix.PubSub, name: Assistant.PubSub},
-        {Task.Supervisor, name: Assistant.TaskSupervisor},
-        Assistant.Cards
+        {Task.Supervisor, name: Assistant.TaskSupervisor}
       ],
       strategy: :one_for_one,
       name: Assistant.Supervisor

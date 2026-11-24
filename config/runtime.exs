@@ -108,7 +108,7 @@ cards_root =
     Path.join(System.tmp_dir!(), "clinker-cards")
   end
 
-config :assistant, :cards, %{
+config :cards, :repo, %{
   root: cards_root,
   repo_url: blank.(System.get_env("CARDS_REPO_URL")),
   git_token: blank.(System.get_env("CARDS_GIT_TOKEN")),

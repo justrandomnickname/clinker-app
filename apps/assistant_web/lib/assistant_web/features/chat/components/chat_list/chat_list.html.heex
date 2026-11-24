@@ -26,19 +26,31 @@
     <.async_result :let={chats} assign={@chats}>
       <:failed>Не удалось прочитать чаты</:failed>
       
-      <button
-        :for={chat <- chats}
-        type="button"
-        id={"chat-#{chat.id}"}
-        phx-click="select_chat"
-        phx-value-id={chat.id}
-        class={[
-          "truncate rounded px-3 py-2 text-left",
-          chat.id == @current_id && "bg-paper font-medium"
-        ]}
-      >
-        {chat.title}
-      </button>
+      <div :for={chat <- chats} class="flex items-center">
+        <button
+          type="button"
+          id={"chat-#{chat.id}"}
+          phx-click="select_chat"
+          phx-value-id={chat.id}
+          class={[
+            "min-w-0 flex-1 truncate rounded px-3 py-2 text-left",
+            chat.id == @current_id && "bg-paper font-medium"
+          ]}
+        >
+          {chat.title}
+        </button>
+        <button
+          type="button"
+          id={"delete-chat-#{chat.id}"}
+          phx-click="delete_chat"
+          phx-value-id={chat.id}
+          data-confirm="Удалить чат?"
+          aria-label="Удалить чат"
+          class="shrink-0 rounded px-2 py-2"
+        >
+          ×
+        </button>
+      </div>
     </.async_result>
   </div>
 </aside>

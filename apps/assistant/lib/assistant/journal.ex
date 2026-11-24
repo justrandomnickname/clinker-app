@@ -89,6 +89,19 @@ defmodule Assistant.Journal do
     Repo.insert(%Chat{context: context})
   end
 
+  def delete_chat(chat_id) when is_integer(chat_id) do
+    case Repo.get(Chat, chat_id) do
+      nil ->
+        {:error, :missing}
+
+      chat ->
+        case Repo.delete(chat) do
+          {:ok, _chat} -> :ok
+          {:error, reason} -> {:error, reason}
+        end
+    end
+  end
+
   def system_prompt do
     path = Application.fetch_env!(:assistant, :system_prompt_path)
 

@@ -1,0 +1,16 @@
+---
+description: Карточка приложения assistant_inference
+globs: apps/assistant_inference/**/*.ex,apps/assistant_inference/**/*.exs
+alwaysApply: false
+---
+
+# assistant_inference
+
+Владеет вызовом Gemini.
+Не знает журнал и экран.
+
+Дверь: `AssistantInference.Gemini`.
+Поток и запрос — `gemini.ex`. Разбор кусков — `Gemini.Decoder`.
+Ключ и журнал не читает. В вызов приходит уже собранное тело из `Assistant.Journal.outbound/3`.
+
+Перед правкой публичной функции из корня зонтика: `mix xref graph --sink lib/assistant_inference/gemini.ex`. `mix xref callers` не запускать.

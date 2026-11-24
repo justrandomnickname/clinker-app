@@ -24,6 +24,13 @@ defmodule AssistantWeb.Features.Chat.Pages.ChatLive.Event do
     end
   end
 
+  def delete_chat(socket, chat_id) do
+    case Assistant.delete_chat(chat_id) do
+      :ok -> socket
+      {:error, _reason} -> assign(socket, reason: Screen.reason(:delete))
+    end
+  end
+
   defp create_context(:all), do: "misc"
   defp create_context(slug) when is_binary(slug), do: slug
 end

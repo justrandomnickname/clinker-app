@@ -1,0 +1,42 @@
+---
+description: Карточка приложения assistant
+globs: apps/assistant/**/*.ex,apps/assistant/**/*.exs
+alwaysApply: false
+---
+
+# assistant
+
+Владеет журналом чатов, процессом хода и PubSub.
+Не знает шаблоны, маршруты и HTTP Gemini.
+
+Дверь снаружи — модуль `Assistant`:
+`submit/2`, `create_chat/1`, `delete_chat/1`, `list_chats/1`, `messages/1`,
+`spend/1`, `spend_total/0`, `meter/1`, `phase/1`, `complete/1`,
+`select_provider/1`, `put_key/1`, `provider/0`.
+
+Процессы на всё время работы:
+`Assistant.Repo`,
+`Assistant.Repo.Migrator`,
+`Assistant.Reply.Registry`,
+`Assistant.Reply.Supervisor`,
+`Assistant.PubSub`,
+`Assistant.TaskSupervisor`.
+
+Ход одного чата — процесс `Assistant.Reply`.
+`Decision` начинает, повторяет или обрывает ход.
+`Request` собирает тело запроса.
+`Delivery` пишет журнал и публикует снимок.
+`Journal` хранит чаты и сообщения.
+
+Сборка текста в модель — только `Assistant.Journal.outbound/3`.
+Поле `thinking` в эту сборку не входит.
+Пустой `content` пропускается.
+Фраза «продолжай с места обрыва» добавляется к запросу и в журнал не пишется.
+
+Куда класть правку:
+
+- ход — `lib/assistant/reply`
+- запись и сборка — `lib/assistant/journal.ex`
+- новая функция двери — `lib/assistant.ex`
+
+Перед правкой публичной функции из корня зонтика: `mix xref graph --sink lib/путь/к/файлу.ex`. Пример: `mix xref graph --sink lib/assistant/journal.ex`. `mix xref callers` не запускать.

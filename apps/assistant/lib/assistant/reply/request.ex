@@ -1,5 +1,5 @@
 defmodule Assistant.Reply.Request do
-  alias Assistant.Cards
+  alias Cards
   alias Assistant.Journal
 
   def build(state) do

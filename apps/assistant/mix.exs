@@ -13,7 +13,7 @@ defmodule Assistant.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :crypto, :inets, :ssl],
+      extra_applications: [:logger],
       mod: {Assistant.Application, []}
     ]
   end
@@ -21,12 +21,12 @@ defmodule Assistant.MixProject do
   defp deps do
     [
       {:assistant_inference, in_umbrella: true},
+      {:cards, in_umbrella: true},
       {:ecto_sql, "~> 3.12"},
       {:ecto_sqlite3, "~> 0.17"},
       {:postgrex, "~> 0.19"},
       {:phoenix_pubsub, "~> 2.1"},
-      {:plug, "~> 1.16", only: :test},
-      {:req, "~> 0.5"}
+      {:plug, "~> 1.16", only: :test}
     ]
   end
 end

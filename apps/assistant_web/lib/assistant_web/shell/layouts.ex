@@ -25,6 +25,16 @@ defmodule AssistantWeb.Shell.Layouts do
         <script src="/assets/live/phoenix_live_view.min.js"></script>
         <script>
           const csrf = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+          window.addEventListener("click", function (event) {
+            const el = event.target.closest("[data-confirm]")
+            if (!el) return
+            const message = el.getAttribute("data-confirm")
+            if (!message) return
+            if (!window.confirm(message)) {
+              event.preventDefault()
+              event.stopPropagation()
+            }
+          }, true)
           const socket = new LiveView.LiveSocket("/live", Phoenix.Socket, {
             heartbeatIntervalMs: 30000,
             params: { _csrf_token: csrf }

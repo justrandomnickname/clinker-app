@@ -267,11 +267,11 @@ defmodule Assistant.Reply.Decision do
 
   defp perform({name, args}, state) do
     state = if name == "get_card", do: %{state | card_opens: state.card_opens + 1}, else: state
-    {Assistant.cards_pack(safe_call(name, args)), state}
+    {Cards.pack(safe_call(name, args)), state}
   end
 
   defp safe_call(name, args) do
-    Assistant.cards_call(name, args)
+    Cards.dispatch(name, args)
   rescue
     _ -> {:error, :unavailable}
   catch

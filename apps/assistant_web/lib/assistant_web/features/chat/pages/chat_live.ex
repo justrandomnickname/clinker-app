@@ -28,4 +28,8 @@ defmodule AssistantWeb.Features.Chat.Pages.ChatLive do
   def handle_event("new_chat", _params, socket) do
     {:noreply, Event.new_chat(socket)}
   end
+
+  def handle_event("delete_chat", %{"id" => id}, socket) do
+    {:noreply, Event.delete_chat(socket, String.to_integer(id))}
+  end
 end

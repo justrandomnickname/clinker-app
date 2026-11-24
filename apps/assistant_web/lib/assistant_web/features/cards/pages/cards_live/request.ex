@@ -44,7 +44,7 @@ defmodule AssistantWeb.Features.Cards.Pages.CardsLive.Request do
 
     socket
     |> assign(:list_token, token)
-    |> LiveView.start_async(:cards, fn -> {token, Assistant.list_cards(tags)} end)
+    |> LiveView.start_async(:cards, fn -> {token, Cards.list(tags)} end)
   end
 
   def loaded(socket, :cards, {token, result}) do
@@ -81,6 +81,6 @@ defmodule AssistantWeb.Features.Cards.Pages.CardsLive.Request do
     socket
     |> assign(:card_token, token)
     |> assign(:card, Phoenix.LiveView.AsyncResult.loading())
-    |> LiveView.start_async(:card, fn -> {token, Assistant.get_card(slug)} end)
+    |> LiveView.start_async(:card, fn -> {token, Cards.get(slug)} end)
   end
 end

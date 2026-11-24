@@ -43,6 +43,17 @@ defmodule Assistant.Reply do
     end
   end
 
+  def stop(chat_id) when is_integer(chat_id) do
+    case whereis(chat_id) do
+      nil ->
+        :ok
+
+      pid ->
+        DynamicSupervisor.terminate_child(Assistant.Reply.Supervisor, pid)
+        :ok
+    end
+  end
+
   def complete(prompt) do
     if blank?(prompt) do
       {:error, :empty}

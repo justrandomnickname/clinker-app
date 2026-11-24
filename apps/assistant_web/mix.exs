@@ -23,6 +23,7 @@ defmodule AssistantWeb.MixProject do
   defp deps do
     [
       {:assistant, in_umbrella: true},
+      {:cards, in_umbrella: true},
       {:phoenix, "~> 1.7.14"},
       {:phoenix_live_view, "~> 1.0"},
       {:bandit, "~> 1.6"},

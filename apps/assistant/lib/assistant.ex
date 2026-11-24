@@ -21,6 +21,19 @@ defmodule Assistant do
   end
 
   def list_chats(context \\ :all), do: Assistant.Journal.list_chats(context)
+
+  def delete_chat(chat_id) when is_integer(chat_id) do
+    Assistant.Reply.stop(chat_id)
+
+    case Assistant.Journal.delete_chat(chat_id) do
+      :ok ->
+        Assistant.Reply.Delivery.chats_changed(chat_id)
+        :ok
+
+      other ->
+        other
+    end
+  end
   def messages(chat_id), do: Assistant.Journal.messages(chat_id)
   def spend(chat_id), do: Assistant.Journal.spend(chat_id)
   def spend_total, do: Assistant.Journal.spend_total()
@@ -57,23 +70,6 @@ defmodule Assistant do
 
   def select_provider(name), do: Assistant.Journal.select_provider(name)
   def put_key(key), do: AssistantInference.Gemini.put_key(key)
-
-  def list_cards(tags \\ []) when is_list(tags), do: Assistant.Cards.list(tags)
-  def get_card(slug) when is_binary(slug), do: Assistant.Cards.get(slug)
-
-  def create_card(slug, title, tags, source, body) do
-    Assistant.Cards.create(slug, title, tags, source, body)
-  end
-
-  def update_card(slug, title, tags, body) do
-    Assistant.Cards.update(slug, title, tags, body)
-  end
-
-  def cards_call(name, args), do: Assistant.Cards.dispatch(name, args)
-  def cards_instructions, do: Assistant.Cards.instructions()
-  def cards_tools, do: Assistant.Cards.tools()
-  def cards_mcp_token, do: Assistant.Cards.mcp_token()
-  def cards_pack(result), do: Assistant.Cards.pack(result)
 
   def provider do
     name = Assistant.Journal.provider_name()

@@ -44,18 +44,18 @@ defmodule AssistantWeb.McpController do
       "protocolVersion" => version,
       "capabilities" => %{"tools" => %{}},
       "serverInfo" => %{"name" => "memory-cards", "version" => "1.0.0"},
-      "instructions" => Assistant.cards_instructions()
+      "instructions" => Cards.instructions()
     })
   end
 
   defp request(conn, id, "tools/list", _params) do
-    json_result(conn, id, %{"tools" => Assistant.cards_tools()})
+    json_result(conn, id, %{"tools" => Cards.tools()})
   end
 
   defp request(conn, id, "tools/call", params) do
     name = params["name"]
     args = params["arguments"] || %{}
-    packed = Assistant.cards_pack(Assistant.cards_call(name, args))
+    packed = Cards.pack(Cards.dispatch(name, args))
 
     json_result(conn, id, %{
       "content" => [%{"type" => "text", "text" => Jason.encode!(packed)}],
@@ -72,7 +72,7 @@ defmodule AssistantWeb.McpController do
   end
 
   defp authorize(conn) do
-    expected = Assistant.cards_mcp_token()
+    expected = Cards.mcp_token()
     given = bearer(conn)
 
     cond do

@@ -61,9 +61,9 @@ defmodule AssistantWeb.RouterTest do
   end
 
   test "a wrong token is refused without card text" do
-    previous = Application.get_env(:assistant, :cards)
-    Application.put_env(:assistant, :cards, %{previous | mcp_token: "test-token"})
-    on_exit(fn -> Application.put_env(:assistant, :cards, previous) end)
+    previous = Application.get_env(:cards, :repo)
+    Application.put_env(:cards, :repo, %{previous | mcp_token: "test-token"})
+    on_exit(fn -> Application.put_env(:cards, :repo, previous) end)
 
     conn =
       mcp_post(

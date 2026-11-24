@@ -46,6 +46,7 @@ defmodule AssistantWeb.Features.Chat.Pages.ChatLive.Screen do
 
   def reason(:empty), do: "Пустое сообщение"
   def reason(:chat), do: "Не удалось создать чат"
+  def reason(:delete), do: "Не удалось удалить чат"
   def reason(:busy), do: "Ответ ещё пишется"
   def reason(:wrong_chat), do: "Это не текущий чат"
   def reason(:unavailable), do: "Модель недоступна"

@@ -104,6 +104,33 @@ defmodule AssistantWeb.Features.Chat.Pages.ChatLiveTest do
     assert html =~ "Новый"
   end
 
+  test "the cross deletes a chat after the warning" do
+    kept = chat("Оставить")
+    gone = chat("Убрать")
+
+    Assistant.Repo.insert!(%Assistant.Journal.Message{
+      chat_id: gone.id,
+      seq: 1,
+      role: "user",
+      content: "из убранного",
+      status: "complete"
+    })
+
+    {:ok, view, _html} = live(build_conn(), "/chat")
+    html = render_async(view, 1_000)
+    assert html =~ "Убрать"
+    assert html =~ "Оставить"
+    assert html =~ "data-confirm=\"Удалить чат?\""
+
+    view |> element("#delete-chat-#{gone.id}") |> render_click()
+    html = render_async(view, 1_000)
+    refute html =~ "Убрать"
+    refute html =~ "из убранного"
+    assert html =~ "Оставить"
+    assert Enum.map(Assistant.list_chats(), & &1.id) == [kept.id]
+    assert Assistant.messages(gone.id) == []
+  end
+
   test "the new chat button opens an empty chat" do
     chat("Старый")
 
