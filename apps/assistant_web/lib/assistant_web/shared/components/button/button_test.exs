@@ -15,9 +15,10 @@ defmodule AssistantWeb.Shared.Components.ButtonTest do
     assert html =~ "Отправить"
     assert html =~ ~s(type="submit")
     assert html =~ "bg-brand"
-    assert html =~ "rounded-bttn-md"
-    assert html =~ "drop-shadow-brand"
-    assert html =~ "px-figma-xl"
+    assert html =~ "text-secondary"
+    assert html =~ "rounded-bttn-sm"
+    assert html =~ "shadow-brand"
+    assert html =~ "px-figma-xxl"
     refute html =~ "border-"
     refute html =~ "disabled"
   end

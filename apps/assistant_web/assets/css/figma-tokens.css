@@ -1,8 +1,27 @@
 @theme {
-  --color-brand: #ffff07;
+  --color-brand: #ffcb56;
+  --color-brand-light: #ffec91;
+  --color-brand-tint-50: #ffcb5680;
+  --color-primary: #f5f7f8;
+  --color-secondary: #45474b;
+  --color-secondary-tint-50: #45474b80;
+  --figma-spacing-sm: 6px;
+  --figma-spacing-md: 12px;
+  --figma-spacing-lg: 16px;
   --figma-spacing-xl: 24px;
+  --figma-spacing-xxl: 36px;
+  --radius-bttn-sm: 6px;
   --radius-bttn-md: 12px;
-  --drop-shadow-brand: 0 0 4px var(--color-brand);
+  --radius-bttn-lg: 20px;
+  --text-figma-sm: 12px;
+  --text-figma-sm--line-height: 20px;
+  --text-figma-md: 16px;
+  --text-figma-md--line-height: 26px;
+  --text-figma-lg: 20px;
+  --text-figma-lg--line-height: 33px;
+  --shadow-brand: 0 4px 8px var(--color-brand-tint-50), 0 -1px 4px var(--color-secondary-tint-50);
+  --shadow-input: inset 0 2px 4px var(--color-secondary-tint-50);
+  --shadow-message: 4px 4px 3px rgb(0 0 0 / 25%);
 }
 
 @utility p-figma-* {
@@ -47,4 +66,20 @@
 
 @utility gap-figma-* {
   gap: --value(--figma-spacing-*);
+}
+
+@utility w-menu {
+  width: 328px;
+}
+
+@utility w-chat {
+  width: 600px;
+}
+
+@utility gap-chat {
+  gap: 10px;
+}
+
+@utility tracking-bttn {
+  letter-spacing: 0.96px;
 }

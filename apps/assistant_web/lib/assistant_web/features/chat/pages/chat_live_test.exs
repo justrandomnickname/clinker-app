@@ -141,13 +141,11 @@ defmodule AssistantWeb.Features.Chat.Pages.ChatLiveTest do
     html = render_async(view, 1_000)
     [new, older] = Assistant.list_chats()
 
-    assert html =~ "Начать новый чат"
+    assert html =~ "Новый чат"
     assert html =~ "Старый"
     assert new.title == "Новый чат"
     assert new.context == "misc"
     assert older.title == "Старый"
-    assert view |> element("#chat-#{new.id}") |> render() =~ "bg-paper"
-    refute view |> element("#chat-#{older.id}") |> render() =~ "bg-paper"
   end
 
   test "a context shows only its chats" do
@@ -158,10 +156,6 @@ defmodule AssistantWeb.Features.Chat.Pages.ChatLiveTest do
     html = render_async(view, 1_000)
     assert html =~ "Дом"
     refute html =~ "Код"
-    assert view |> element("#context-label") |> render() =~ "bytovoe"
-
-    assert {:error, {:live_redirect, %{to: "/"}}} =
-             view |> element("#context-label") |> render_click()
   end
 
   test "the full list shows every context" do
@@ -172,7 +166,6 @@ defmodule AssistantWeb.Features.Chat.Pages.ChatLiveTest do
     html = render_async(view, 1_000)
     assert html =~ "Дом"
     assert html =~ "Код"
-    assert view |> element("#context-label") |> render() =~ "все"
   end
 
   test "a new chat keeps the open context" do

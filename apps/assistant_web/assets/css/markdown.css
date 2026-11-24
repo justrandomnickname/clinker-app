@@ -67,3 +67,8 @@
   background: white;
   padding: 0.05rem 0.25rem;
 }
+
+.chat-copy.markdown :is(p, ul, ol, h1, h2, h3, li) {
+  font-size: inherit;
+  line-height: inherit;
+}

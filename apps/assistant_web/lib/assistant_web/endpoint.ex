@@ -13,6 +13,12 @@ defmodule AssistantWeb.Endpoint do
     longpoll: false
   )
 
+  if code_reloading? do
+    socket("/phoenix/live_reload", Phoenix.LiveReloader.Socket)
+    plug(Phoenix.LiveReloader)
+    plug(Phoenix.CodeReloader)
+  end
+
   plug(Plug.Static, at: "/", from: :assistant_web, only: ~w(assets fonts icons manifest.webmanifest))
   plug(Plug.Static, at: "/assets/phoenix", from: {:phoenix, "priv/static"})
   plug(Plug.Static, at: "/assets/live", from: {:phoenix_live_view, "priv/static"})

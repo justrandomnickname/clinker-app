@@ -1,41 +1,19 @@
-<aside class="flex h-screen w-56 shrink-0 flex-col border-r border-line bg-white">
-  <.link
-    id="context-label"
-    navigate="/"
-    class="mx-2 mt-3 block truncate px-3 text-left text-sm text-user no-underline"
-  >
-    {label(@context)}
-  </.link>
-  <.link
-    id="cards-link"
-    navigate="/cards"
-    class="mx-2 mt-2 block rounded px-3 py-2 text-left no-underline"
-  >
-    Карточки
-  </.link>
-  <button
-    type="button"
-    id="new-chat"
-    phx-click="new_chat"
-    class="mx-2 mt-2 rounded px-3 py-2 text-left"
-  >
-    Начать новый чат
-  </button>
-  
-  <div class="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-2">
+<aside class="flex h-full w-menu shrink-0 flex-col gap-figma-md bg-brand">
+  <div class="flex w-full flex-col items-center bg-primary px-figma-lg py-figma-xl">
+    <Button.button id="new-chat" type="button" phx-click="new_chat">
+      Новый чат
+    </Button.button>
+  </div>
+  <div class="flex min-h-0 flex-1 flex-col gap-figma-md overflow-y-auto">
     <.async_result :let={chats} assign={@chats}>
       <:failed>Не удалось прочитать чаты</:failed>
-      
-      <div :for={chat <- chats} class="flex items-center">
+      <div :for={chat <- chats} class="flex items-center justify-between px-figma-lg">
         <button
           type="button"
           id={"chat-#{chat.id}"}
           phx-click="select_chat"
           phx-value-id={chat.id}
-          class={[
-            "min-w-0 flex-1 truncate rounded px-3 py-2 text-left",
-            chat.id == @current_id && "bg-paper font-medium"
-          ]}
+          class="min-w-0 flex-1 truncate text-left font-sans text-figma-md text-secondary"
         >
           {chat.title}
         </button>
@@ -46,9 +24,9 @@
           phx-value-id={chat.id}
           data-confirm="Удалить чат?"
           aria-label="Удалить чат"
-          class="shrink-0 rounded px-2 py-2"
+          class="shrink-0"
         >
-          ×
+          <img src="/icons/close-circle.svg" width="16" height="16" alt="" />
         </button>
       </div>
     </.async_result>

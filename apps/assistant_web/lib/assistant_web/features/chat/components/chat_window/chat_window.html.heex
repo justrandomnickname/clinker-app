@@ -1,13 +1,14 @@
-<div id="log" class="flex-1">
+<div id="log" class="flex min-h-0 w-full flex-1 flex-col gap-chat overflow-y-auto p-figma-md">
   <.async_result :let={messages} assign={@messages}>
     <:failed>Не удалось прочитать сообщения</:failed>
     <article
       :for={message <- messages}
       id={"message-#{message.id}"}
       class={[
-        "wrap-anywhere border-b border-line py-[0.7rem]",
-        message.role == "user" && "whitespace-pre-wrap text-user",
-        message.role != "user" && "markdown"
+        "text-figma-md text-secondary",
+        message.role == "user" &&
+          "w-full rounded-bttn-md bg-brand-light px-figma-md py-figma-lg text-right whitespace-pre-wrap shadow-message",
+        message.role != "user" && "chat-copy markdown w-full"
       ]}
     >
       {if message.role == "user" do

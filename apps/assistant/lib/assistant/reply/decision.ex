@@ -262,12 +262,19 @@ defmodule Assistant.Reply.Decision do
   end
 
   defp perform({"get_card", _args}, %{card_opens: opens} = state) when opens >= 3 do
-    {%{"ok" => false, "error" => "За ход можно открыть не больше трёх карточек."}, state}
+    {function_response("get_card", %{
+       "ok" => false,
+       "error" => "За ход можно открыть не больше трёх карточек."
+     }), state}
   end
 
   defp perform({name, args}, state) do
     state = if name == "get_card", do: %{state | card_opens: state.card_opens + 1}, else: state
-    {Cards.pack(safe_call(name, args)), state}
+    {function_response(name, Cards.pack(safe_call(name, args))), state}
+  end
+
+  defp function_response(name, payload) when is_binary(name) and is_map(payload) do
+    %{"functionResponse" => %{"name" => name, "response" => payload}}
   end
 
   defp safe_call(name, args) do

@@ -117,6 +117,50 @@ defmodule Assistant.ReplyTest do
     assert Assistant.messages(chat.id) == []
   end
 
+  test "a tool result goes back as a function response" do
+    bodies =
+      stub_sequence(fn n ->
+        if n == 0 do
+          {[
+             %{
+               "functionCall" => %{
+                 "name" => "list_cards",
+                 "args" => %{"tags" => []}
+               }
+             }
+           ], %{"promptTokenCount" => 3, "candidatesTokenCount" => 1, "thoughtsTokenCount" => 0}}
+        else
+          {[%{"text" => "список пуст"}],
+           %{"promptTokenCount" => 4, "candidatesTokenCount" => 2, "thoughtsTokenCount" => 0}}
+        end
+      end)
+
+    {:ok, chat} = Assistant.create_chat()
+    Phoenix.PubSub.subscribe(Assistant.PubSub, "assistant:chat:#{chat.id}")
+    assert {:ok, _turn_id} = Assistant.submit(chat.id, "покажи карточки")
+    assert_receive {:slot, %{phase: :idle}}, 2_000
+
+    [_first, second | _] = Agent.get(bodies, & &1)
+
+    response =
+      second
+      |> Jason.decode!()
+      |> Map.fetch!("contents")
+      |> List.last()
+      |> Map.fetch!("parts")
+
+    assert [
+             %{
+               "functionResponse" => %{
+                 "name" => "list_cards",
+                 "response" => %{"ok" => ok}
+               }
+             }
+           ] = response
+
+    assert is_boolean(ok)
+  end
+
   test "manual completion does not write the journal" do
     stub_sequence(fn _ ->
       {[%{"text" => "pong"}], %{"promptTokenCount" => 2, "candidatesTokenCount" => 1, "thoughtsTokenCount" => 0}}

@@ -1,40 +1,36 @@
 defmodule AssistantWeb.Features.Chat.Components.ChatInput do
   use Phoenix.Component
 
-  alias AssistantWeb.Shared.Components.Button
+  alias AssistantWeb.Shared.Components.{CircleButton, Input}
   alias Phoenix.LiveView.AsyncResult
 
   embed_templates("chat_input*")
 
   attr(:draft, :string, required: true)
   attr(:phase, AsyncResult, required: true)
-  attr(:reason, :string, default: nil)
   attr(:meter, AsyncResult, required: true)
   def chat_input(assigns)
 
-  def caption(%AsyncResult{result: %{used: used, limit: limit, balance: balance}})
+  def caption(%AsyncResult{result: %{used: used, limit: limit}})
       when is_integer(used) and is_integer(limit) and limit > 0 do
-    case money(balance) do
-      nil -> "#{grouped(used)} / #{grouped(limit)}"
-      text -> "#{grouped(used)} / #{grouped(limit)} · #{text}"
-    end
+    "#{compact(used)} / #{compact(limit)}"
   end
 
   def caption(_meter), do: ""
 
-  defp money(%{currency: "USD", cents: cents}) when is_integer(cents) do
-    sign = if cents < 0, do: "-", else: ""
-    cents = abs(cents)
-    dollars = div(cents, 100)
-    fraction = cents |> rem(100) |> Integer.to_string() |> String.pad_leading(2, "0")
-    sign <> "$" <> Integer.to_string(dollars) <> "." <> fraction
-  end
+  defp compact(number) when number >= 1_000_000, do: scaled(number, 1_000_000) <> "kk"
+  defp compact(number) when number >= 1_000, do: scaled(number, 1_000) <> "k"
+  defp compact(number), do: Integer.to_string(number)
 
-  defp money(_balance), do: nil
+  defp scaled(number, unit) do
+    tenths = div(number * 10 + div(unit, 2), unit)
+    whole = div(tenths, 10)
+    fraction = rem(tenths, 10)
 
-  defp grouped(number) do
-    number
-    |> Integer.to_string()
-    |> String.replace(~r/\B(?=(\d{3})+(?!\d))/, " ")
+    if fraction == 0 do
+      Integer.to_string(whole)
+    else
+      "#{whole}.#{fraction}"
+    end
   end
 end
