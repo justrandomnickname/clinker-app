@@ -198,17 +198,13 @@
   }
 }
 @layer utilities {
-  .pointer-events-none {
-    pointer-events: none;
-  }
   .visible {
     visibility: visible;
   }
   .screen-visual {
     position: fixed;
-    inset-inline: 0;
-    top: var(--vv-top, 0px);
-    height: var(--vv-height, 100dvh);
+    inset: 0;
+    height: 100dvh;
     overflow: hidden;
   }
   .absolute {
@@ -226,17 +222,14 @@
   .inset-x-0 {
     inset-inline: calc(var(--spacing) * 0);
   }
-  .top-figma-xl {
-    top: var(--figma-spacing-xl);
-  }
   .top-safe-xl {
     top: max(var(--figma-spacing-xl), env(safe-area-inset-top, 0px));
   }
   .bottom-0 {
     bottom: calc(var(--spacing) * 0);
   }
-  .left-figma-lg {
-    left: var(--figma-spacing-lg);
+  .bottom-keyboard {
+    bottom: var(--keyboard-inset, 0px);
   }
   .left-safe-lg {
     left: max(var(--figma-spacing-lg), env(safe-area-inset-left, 0px));
@@ -294,9 +287,6 @@
     width: calc(var(--spacing) * 11);
     height: calc(var(--spacing) * 11);
   }
-  .h-0 {
-    height: calc(var(--spacing) * 0);
-  }
   .h-8 {
     height: calc(var(--spacing) * 8);
   }
@@ -320,9 +310,6 @@
   }
   .min-h-screen {
     min-height: 100vh;
-  }
-  .w-0 {
-    width: calc(var(--spacing) * 0);
   }
   .w-72 {
     width: calc(var(--spacing) * 72);
@@ -476,12 +463,6 @@
   .p-2 {
     padding: calc(var(--spacing) * 2);
   }
-  .p-figma-lg {
-    padding: var(--figma-spacing-lg);
-  }
-  .p-figma-md {
-    padding: var(--figma-spacing-md);
-  }
   .p-figma-sm {
     padding: var(--figma-spacing-sm);
   }
@@ -548,7 +529,7 @@
     padding-right: max(var(--figma-spacing-lg), env(safe-area-inset-right, 0px));
   }
   .pb-actions {
-    padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px) + var(--keyboard-inset, 0px));
   }
   .pb-figma-xl {
     padding-bottom: var(--figma-spacing-xl);

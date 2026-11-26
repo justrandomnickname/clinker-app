@@ -9,7 +9,7 @@ defmodule AssistantWeb.Shell.Layouts do
         <meta charset="utf-8" />
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
         <meta name="theme-color" content="#f7f7f5" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -43,8 +43,8 @@ defmodule AssistantWeb.Shell.Layouts do
               this.sync = () => {
                 const vv = window.visualViewport
                 if (!vv) return
-                this.el.style.setProperty("--vv-top", vv.offsetTop + "px")
-                this.el.style.setProperty("--vv-height", vv.height + "px")
+                const inset = Math.max(0, window.innerHeight - vv.offsetTop - vv.height)
+                this.el.style.setProperty("--keyboard-inset", inset + "px")
               }
               this.sync()
               if (!window.visualViewport) return
