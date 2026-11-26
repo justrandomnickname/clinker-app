@@ -38,32 +38,9 @@ defmodule AssistantWeb.Shell.Layouts do
               event.stopPropagation()
             }
           }, true)
-          const KeyboardInset = {
-            mounted() {
-              this.sync = () => {
-                const vv = window.visualViewport
-                if (!vv) return
-                const covered = window.innerHeight - vv.height
-                const inset = covered < 150 ? 0 : Math.max(0, covered - vv.offsetTop)
-                if (this.inset === inset) return
-                this.inset = inset
-                this.el.style.setProperty("--keyboard-inset", inset + "px")
-              }
-              this.sync()
-              if (!window.visualViewport) return
-              window.visualViewport.addEventListener("resize", this.sync)
-              window.visualViewport.addEventListener("scroll", this.sync)
-            },
-            destroyed() {
-              if (!this.sync || !window.visualViewport) return
-              window.visualViewport.removeEventListener("resize", this.sync)
-              window.visualViewport.removeEventListener("scroll", this.sync)
-            }
-          }
           const socket = new LiveView.LiveSocket("/live", Phoenix.Socket, {
             heartbeatIntervalMs: 30000,
-            params: { _csrf_token: csrf },
-            hooks: { KeyboardInset: KeyboardInset }
+            params: { _csrf_token: csrf }
           })
           socket.connect()
         </script>

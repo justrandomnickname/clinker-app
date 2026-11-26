@@ -109,15 +109,7 @@
 }
 
 @utility pb-actions {
-  padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px) + var(--keyboard-inset, 0px));
-}
-
-@utility pb-keyboard {
-  padding-bottom: var(--keyboard-inset, 0px);
-}
-
-@utility bottom-keyboard {
-  bottom: var(--keyboard-inset, 0px);
+  padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
 }
 
 @utility px-safe-lg {
