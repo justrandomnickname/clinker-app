@@ -204,6 +204,13 @@
   .visible {
     visibility: visible;
   }
+  .screen-visual {
+    position: fixed;
+    inset-inline: 0;
+    top: var(--vv-top, 0px);
+    height: var(--vv-height, 100dvh);
+    overflow: hidden;
+  }
   .absolute {
     position: absolute;
   }
@@ -222,11 +229,17 @@
   .top-figma-xl {
     top: var(--figma-spacing-xl);
   }
+  .top-safe-xl {
+    top: max(var(--figma-spacing-xl), env(safe-area-inset-top, 0px));
+  }
   .bottom-0 {
     bottom: calc(var(--spacing) * 0);
   }
   .left-figma-lg {
     left: var(--figma-spacing-lg);
+  }
+  .left-safe-lg {
+    left: max(var(--figma-spacing-lg), env(safe-area-inset-left, 0px));
   }
   .z-10 {
     z-index: 10;
@@ -511,14 +524,40 @@
   .py-figma-xl {
     padding-block: var(--figma-spacing-xl);
   }
+  .py-safe-xl {
+    padding-top: max(var(--figma-spacing-xl), env(safe-area-inset-top, 0px));
+    padding-bottom: max(var(--figma-spacing-xl), env(safe-area-inset-bottom, 0px));
+  }
   .pt-3 {
     padding-top: calc(var(--spacing) * 3);
   }
   .pt-4 {
     padding-top: calc(var(--spacing) * 4);
   }
+  .pt-figma-lg {
+    padding-top: var(--figma-spacing-lg);
+  }
+  .pt-figma-md {
+    padding-top: var(--figma-spacing-md);
+  }
+  .pt-safe-xl {
+    padding-top: max(var(--figma-spacing-xl), env(safe-area-inset-top, 0px));
+  }
+  .px-safe-lg {
+    padding-left: max(var(--figma-spacing-lg), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--figma-spacing-lg), env(safe-area-inset-right, 0px));
+  }
   .pb-actions {
-    padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md));
+    padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
+  }
+  .pb-figma-xl {
+    padding-bottom: var(--figma-spacing-xl);
+  }
+  .pb-safe-lg {
+    padding-bottom: calc(var(--figma-spacing-lg) + env(safe-area-inset-bottom, 0px));
+  }
+  .pb-safe-md {
+    padding-bottom: calc(var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
   }
   .text-center {
     text-align: center;
@@ -546,6 +585,10 @@
   .text-lg {
     font-size: var(--text-lg);
     line-height: var(--tw-leading, var(--text-lg--line-height));
+  }
+  .text-safe-input {
+    font-size: var(--text-figma-md);
+    line-height: var(--text-figma-sm--line-height);
   }
   .text-sm {
     font-size: var(--text-sm);
@@ -630,8 +673,8 @@
       background-color: var(--color-brand-tint-25);
       background-image: linear-gradient( -45deg, transparent 18%, rgb(255 255 255 / var(--glass-light)) 46%, transparent 68% );
       box-shadow: var(--shadow-actions);
+      -webkit-backdrop-filter: blur(var(--glass-blur));
       backdrop-filter: blur(var(--glass-blur));
-      backdrop-filter: blur(var(--glass-blur)) url("#actions-glass");
     }
   }
   .lg\:flex {
@@ -652,6 +695,12 @@
   .lg\:bg-white {
     @media (width >= 64rem) {
       background-color: var(--color-white);
+    }
+  }
+  .lg\:text-figma-sm {
+    @media (width >= 64rem) {
+      font-size: var(--text-figma-sm);
+      line-height: var(--tw-leading, var(--text-figma-sm--line-height));
     }
   }
 }

@@ -1,10 +1,10 @@
-<div class="flex h-screen bg-primary">
+<div id="chat-screen" phx-hook="KeyboardInset" class="screen-visual flex bg-primary">
   <div class="hidden h-full shrink-0 lg:flex">
     <ChatList.chat_list chats={@chats} />
   </div>
   <main class="flex min-w-0 flex-1 items-center justify-center bg-white">
     <div class="relative flex h-full w-full flex-col gap-chat bg-primary lg:w-chat">
-      <div class="absolute top-figma-xl left-figma-lg z-10 lg:hidden">
+      <div class="absolute top-safe-xl left-safe-lg z-10 lg:hidden">
         <CircleButton.circle_button
           id="chats"
           variant="Burger"

@@ -3,7 +3,7 @@
   id="chat-menu"
   class="fixed inset-0 z-20 flex flex-col gap-figma-lg overflow-y-auto bg-brand lg:hidden"
 >
-  <div class="flex w-full shrink-0 items-start justify-end gap-figma-xl bg-white px-figma-lg py-figma-xl">
+  <div class="flex w-full shrink-0 items-start justify-end gap-figma-xl bg-white px-safe-lg pt-safe-xl pb-figma-xl">
     <CircleButton.circle_button
       id="switch-context"
       variant="Switch-Context"
@@ -21,7 +21,7 @@
   <.async_result :let={chats} assign={@chats}>
     <:failed>Не удалось прочитать чаты</:failed>
     
-    <div :for={chat <- chats} class="flex w-full items-center justify-between px-figma-lg">
+    <div :for={chat <- chats} class="flex w-full items-center justify-between px-safe-lg">
       <button
         type="button"
         id={"menu-chat-#{chat.id}"}
@@ -46,7 +46,7 @@
     </div>
   </.async_result>
   
-  <div class="flex w-full items-center justify-center p-figma-lg">
+  <div class="flex w-full items-center justify-center px-safe-lg pt-figma-lg pb-safe-lg">
     <CircleButton.circle_button
       id="menu-add"
       variant="Add"

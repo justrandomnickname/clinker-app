@@ -7,7 +7,10 @@ defmodule AssistantWeb.Shell.Layouts do
     <html lang="ru">
       <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+        />
         <meta name="theme-color" content="#f7f7f5" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,9 +38,29 @@ defmodule AssistantWeb.Shell.Layouts do
               event.stopPropagation()
             }
           }, true)
+          const KeyboardInset = {
+            mounted() {
+              this.sync = () => {
+                const vv = window.visualViewport
+                if (!vv) return
+                this.el.style.setProperty("--vv-top", vv.offsetTop + "px")
+                this.el.style.setProperty("--vv-height", vv.height + "px")
+              }
+              this.sync()
+              if (!window.visualViewport) return
+              window.visualViewport.addEventListener("resize", this.sync)
+              window.visualViewport.addEventListener("scroll", this.sync)
+            },
+            destroyed() {
+              if (!this.sync || !window.visualViewport) return
+              window.visualViewport.removeEventListener("resize", this.sync)
+              window.visualViewport.removeEventListener("scroll", this.sync)
+            }
+          }
           const socket = new LiveView.LiveSocket("/live", Phoenix.Socket, {
             heartbeatIntervalMs: 30000,
-            params: { _csrf_token: csrf }
+            params: { _csrf_token: csrf },
+            hooks: { KeyboardInset: KeyboardInset }
           })
           socket.connect()
         </script>

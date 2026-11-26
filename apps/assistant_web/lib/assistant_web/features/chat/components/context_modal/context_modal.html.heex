@@ -1,7 +1,7 @@
 <div
   :if={@open}
   id="context-modal"
-  class="fixed inset-0 z-30 flex items-center justify-center lg:hidden"
+  class="fixed inset-0 z-30 flex items-center justify-center px-safe-lg py-safe-xl lg:hidden"
 >
   <button
     type="button"
@@ -25,7 +25,7 @@
         placeholder="Введите контекст"
         autocomplete="off"
         autofocus
-        class="h-8 w-context-field rounded-bttn-lg bg-primary px-figma-lg py-figma-sm font-sans text-figma-sm text-secondary shadow-input outline-none placeholder:text-secondary"
+        class="h-8 w-context-field rounded-bttn-lg bg-primary px-figma-lg py-figma-sm font-sans text-safe-input text-secondary shadow-input outline-none placeholder:text-secondary"
       /> <CircleButton.circle_button type="submit" aria-label="Открыть" />
     </div>
     

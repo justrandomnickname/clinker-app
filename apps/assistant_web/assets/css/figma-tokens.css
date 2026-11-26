@@ -109,7 +109,50 @@
 }
 
 @utility pb-actions {
-  padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md));
+  padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
+}
+
+@utility px-safe-lg {
+  padding-left: max(var(--figma-spacing-lg), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--figma-spacing-lg), env(safe-area-inset-right, 0px));
+}
+
+@utility pt-safe-xl {
+  padding-top: max(var(--figma-spacing-xl), env(safe-area-inset-top, 0px));
+}
+
+@utility pb-safe-md {
+  padding-bottom: calc(var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
+}
+
+@utility pb-safe-lg {
+  padding-bottom: calc(var(--figma-spacing-lg) + env(safe-area-inset-bottom, 0px));
+}
+
+@utility py-safe-xl {
+  padding-top: max(var(--figma-spacing-xl), env(safe-area-inset-top, 0px));
+  padding-bottom: max(var(--figma-spacing-xl), env(safe-area-inset-bottom, 0px));
+}
+
+@utility top-safe-xl {
+  top: max(var(--figma-spacing-xl), env(safe-area-inset-top, 0px));
+}
+
+@utility left-safe-lg {
+  left: max(var(--figma-spacing-lg), env(safe-area-inset-left, 0px));
+}
+
+@utility text-safe-input {
+  font-size: var(--text-figma-md);
+  line-height: var(--text-figma-sm--line-height);
+}
+
+@utility screen-visual {
+  position: fixed;
+  inset-inline: 0;
+  top: var(--vv-top, 0px);
+  height: var(--vv-height, 100dvh);
+  overflow: hidden;
 }
 
 @utility bg-actions {
@@ -121,6 +164,6 @@
     transparent 68%
   );
   box-shadow: var(--shadow-actions);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   backdrop-filter: blur(var(--glass-blur));
-  backdrop-filter: blur(var(--glass-blur)) url("#actions-glass");
 }
