@@ -25,128 +25,60 @@ defmodule AssistantWeb.Shell.Layouts do
               meta.setAttribute("content", meta.content + ", interactive-widget=overlays-content")
             }
 
-            var full = 0
-            var locked = false
-            var generation = 0
-            var lastHeight = ""
-            var lastTop = ""
-            var watching = false
+            var full = window.innerHeight || 0
+            if (full) root.style.setProperty("--app-height", full + "px")
 
-            function layoutHeight() {
-              var vv = window.visualViewport
-              var inner = window.innerHeight || 0
-              var visual = vv ? vv.height + (vv.offsetTop || 0) : inner
-              return Math.round(Math.max(inner, visual))
-            }
-
-            function release() {
-              locked = false
-              full = 0
-              watching = false
-              root.classList.remove("keyboard")
-              root.style.removeProperty("--app-height")
-              root.style.removeProperty("--vv-top")
-              lastHeight = ""
-              lastTop = ""
-            }
-
-            function sync() {
-              if (!locked) return
-              var vv = window.visualViewport
-              if (!full) full = layoutHeight() || window.innerHeight || 0
-              var top = vv && vv.offsetTop > 0 ? Math.round(vv.offsetTop) : 0
-              var height = full + "px"
-              var shift = top + "px"
-              if (height !== lastHeight) {
-                root.style.setProperty("--app-height", height)
-                lastHeight = height
-              }
-              if (shift !== lastTop) {
-                root.style.setProperty("--vv-top", shift)
-                lastTop = shift
-              }
-              if (window.scrollY) window.scrollTo(0, 0)
+            function still() {
+              if (window.scrollX || window.scrollY) window.scrollTo(0, 0)
               if (document.body && document.body.scrollTop) document.body.scrollTop = 0
               var shell = document.querySelector(".screen-visual")
               if (shell && shell.scrollTop) shell.scrollTop = 0
-            }
-
-            function watch() {
-              if (!watching) return
-              sync()
-              requestAnimationFrame(watch)
-            }
-
-            function typing(target) {
-              return !!(target && target.closest && target.closest("input, textarea, select, [contenteditable='true']"))
-            }
-
-            function hold() {
-              full = layoutHeight() || window.innerHeight || 0
-              locked = true
-              root.classList.add("keyboard")
-              sync()
-            }
-
-            if (window.visualViewport) {
-              window.visualViewport.addEventListener("resize", sync)
-              window.visualViewport.addEventListener("scroll", sync)
-            }
-            window.addEventListener("scroll", function () {
-              if (locked && window.scrollY) window.scrollTo(0, 0)
-            }, { passive: true })
-            document.addEventListener("touchstart", function (event) {
-              if (!typing(event.target)) return
-              generation += 1
-              var token = generation
-              hold()
-              setTimeout(function () {
-                if (token !== generation || watching) return
-                release()
-              }, 700)
-            }, true)
-            document.addEventListener("focusin", function (event) {
-              if (!typing(event.target)) return
-              if (!locked) {
-                if (window.scrollY) window.scrollTo(0, 0)
-                return
+              var nodes = [root, document.body, shell, document.getElementById("log")]
+              for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i]
+                if (node && node.style && node.style.paddingTop) node.style.paddingTop = ""
               }
-              generation += 1
-              if (watching) return
-              watching = true
-              requestAnimationFrame(watch)
-            }, true)
-            document.addEventListener("focusout", function () {
-              if (!locked) return
-              var token = generation
-              watching = false
+            }
+
+            function strip() {
+              var fields = document.querySelectorAll("[autofocus]")
+              for (var i = 0; i < fields.length; i++) fields[i].removeAttribute("autofocus")
+            }
+
+            still()
+            if (window.visualViewport) {
+              window.visualViewport.addEventListener("scroll", still)
+            }
+            window.addEventListener("scroll", still, { passive: true })
+            window.addEventListener("orientationchange", function () {
+              full = 0
               setTimeout(function () {
-                if (token !== generation) return
-                release()
-              }, 500)
-            }, true)
+                full = window.innerHeight || 0
+                if (full) root.style.setProperty("--app-height", full + "px")
+                still()
+              }, 400)
+            })
+            document.addEventListener("focusin", still, true)
+            document.addEventListener("focusout", still, true)
             var focus = HTMLElement.prototype.focus
             HTMLElement.prototype.focus = function (options) {
               var next = options ? options : {}
-              if (!locked) next.preventScroll = true
+              next.preventScroll = true
               return focus.call(this, next)
             }
-            var autofocus = new MutationObserver(function () {
-              var field = document.querySelector("input[autofocus], textarea[autofocus]")
-              if (!field) return
-              field.removeAttribute("autofocus")
-              autofocus.disconnect()
-              field.focus({ preventScroll: true })
-            })
-            autofocus.observe(document.documentElement, { childList: true, subtree: true })
-            document.addEventListener("DOMContentLoaded", function () {
-              autofocus.disconnect()
+            strip()
+            var autofocus = new MutationObserver(strip)
+            autofocus.observe(document.documentElement, {
+              childList: true,
+              subtree: true,
+              attributes: true,
+              attributeFilter: ["autofocus"]
             })
           })()
         </script>
         <style>
-          html.ios-pwa.keyboard,
-          html.ios-pwa.keyboard body {
+          html.ios-pwa,
+          html.ios-pwa body {
             position: fixed;
             top: 0;
             right: 0;
@@ -154,15 +86,22 @@ defmodule AssistantWeb.Shell.Layouts do
             bottom: auto;
             width: 100%;
             height: var(--app-height, 100%);
+            margin: 0;
             overflow: hidden;
             overscroll-behavior: none;
+            padding-top: 0 !important;
           }
 
-          html.ios-pwa.keyboard .screen-visual {
+          html.ios-pwa .screen-visual {
             top: 0;
             bottom: auto;
             height: var(--app-height, 100%);
-            transform: translate3d(0, var(--vv-top, 0px), 0);
+            transform: none;
+            padding-top: 0 !important;
+          }
+
+          html.ios-pwa #log {
+            padding-top: var(--figma-spacing-md) !important;
           }
         </style>
         <meta name="theme-color" content="#f7f7f5" />
