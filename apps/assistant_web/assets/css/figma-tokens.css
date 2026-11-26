@@ -84,12 +84,20 @@
   left: --value(--figma-spacing-*);
 }
 
+@utility bottom-figma-* {
+  bottom: --value(--figma-spacing-*);
+}
+
 @utility w-menu {
   width: 328px;
 }
 
 @utility w-chat {
   width: 600px;
+}
+
+@utility w-actions {
+  width: 320px;
 }
 
 @utility w-context-field {

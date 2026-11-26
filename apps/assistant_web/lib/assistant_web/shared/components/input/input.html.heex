@@ -3,6 +3,6 @@
   rows="1"
   placeholder={@placeholder}
   onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); const submit = this.form && this.form.querySelector('[type=submit]'); if (!submit || !submit.disabled) this.form.requestSubmit() }"
-  class="field-sizing-content max-h-32 min-h-8 min-w-0 flex-1 resize-none overflow-y-auto rounded-bttn-lg bg-primary px-figma-lg py-figma-sm font-sans text-figma-sm text-secondary shadow-input outline-none placeholder:text-secondary"
+  class="field-sizing-content max-h-32 min-h-8 min-w-0 flex-1 resize-none overflow-y-auto rounded-bttn-lg bg-primary px-figma-lg py-figma-sm font-sans text-figma-md text-secondary shadow-input outline-none placeholder:text-secondary"
   {@rest}
 >{@value}</textarea>

@@ -1,4 +1,5 @@
-<div class="absolute inset-x-0 bottom-0 z-10 flex w-full flex-col gap-figma-lg px-figma-lg pt-figma-md pb-figma-md max-lg:bg-actions lg:bg-white">
+<div class="absolute inset-x-0 bottom-figma-xl z-10 mx-auto flex w-actions flex-col gap-figma-sm rounded-bttn-lg bg-actions p-figma-md lg:bottom-0 lg:w-full lg:gap-figma-lg lg:rounded-none lg:bg-white lg:px-figma-lg lg:pt-figma-md lg:pb-figma-md">
+  <p class="text-figma-sm text-secondary">{caption(@meter)}</p>
   <form id="composer" class="flex w-full items-end gap-figma-lg" phx-change="draft" phx-submit="send">
     <Input.input
       name="text"
@@ -8,5 +9,4 @@
     />
     <CircleButton.circle_button type="submit" disabled={@phase.result != :idle} />
   </form>
-  <p class="text-figma-sm text-secondary">{caption(@meter)}</p>
 </div>

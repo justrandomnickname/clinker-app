@@ -10,9 +10,12 @@ defmodule AssistantWeb.Features.Chat.Components.ChatInputTest do
     assert ChatInput.caption(meter(1_100_000, 1_048_576)) == "1.1kk / 1kk"
   end
 
-  test "caption stays empty until both context numbers exist" do
-    meter = AsyncResult.ok(AsyncResult.loading(), %{used: 12, limit: nil, balance: nil})
-    assert ChatInput.caption(meter) == ""
+  test "caption renders 0 / 0 until both context numbers exist" do
+    loading = AsyncResult.loading()
+    partial = AsyncResult.ok(loading, %{used: 12, limit: nil, balance: nil})
+
+    assert ChatInput.caption(loading) == "0 / 0"
+    assert ChatInput.caption(partial) == "0 / 0"
   end
 
   defp meter(used, limit) do

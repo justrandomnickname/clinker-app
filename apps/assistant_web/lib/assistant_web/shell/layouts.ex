@@ -4,7 +4,7 @@ defmodule AssistantWeb.Shell.Layouts do
   def root(assigns) do
     ~H"""
     <!DOCTYPE html>
-    <html lang="ru">
+    <html lang="ru" class="fonts-pending">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -17,7 +17,40 @@ defmodule AssistantWeb.Shell.Layouts do
         <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="icon" href="/icons/icon-192.png" type="image/png" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link rel="preload" href="/fonts/news-cycle-400-cyrillic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="/fonts/news-cycle-400-latin.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="/fonts/news-cycle-700-latin.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <link rel="stylesheet" href="/assets/css/app.css" />
+        <style>
+          html.fonts-pending {
+            background: #f7f7f5;
+          }
+
+          html.fonts-pending body {
+            visibility: hidden;
+          }
+        </style>
+        <noscript>
+          <style>
+            html.fonts-pending body {
+              visibility: visible;
+            }
+          </style>
+        </noscript>
+        <script>
+          const root = document.documentElement
+          const show = function () {
+            root.classList.remove("fonts-pending")
+          }
+          if (!document.fonts || !document.fonts.load) {
+            show()
+          } else {
+            const regular = document.fonts.load('400 16px "News Cycle"', "Аa")
+            const bold = document.fonts.load('700 16px "News Cycle"', "A")
+            setTimeout(show, 2000)
+            Promise.all([regular, bold, document.fonts.ready]).then(show, show)
+          }
+        </script>
       </head>
       <body class="bg-paper font-sans text-ink">
         {@inner_content}

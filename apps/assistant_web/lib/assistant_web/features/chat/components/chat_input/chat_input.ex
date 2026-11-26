@@ -16,7 +16,7 @@ defmodule AssistantWeb.Features.Chat.Components.ChatInput do
     "#{compact(used)} / #{compact(limit)}"
   end
 
-  def caption(_meter), do: ""
+  def caption(_meter), do: "0 / 0"
 
   defp compact(number) when number >= 1_000_000, do: scaled(number, 1_000_000) <> "kk"
   defp compact(number) when number >= 1_000, do: scaled(number, 1_000) <> "k"
