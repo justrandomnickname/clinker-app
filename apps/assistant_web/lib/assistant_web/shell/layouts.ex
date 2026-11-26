@@ -39,12 +39,22 @@ defmodule AssistantWeb.Shell.Layouts do
               return Math.round(Math.max(inner, visual))
             }
 
+            function release() {
+              locked = false
+              full = 0
+              watching = false
+              root.classList.remove("keyboard")
+              root.style.removeProperty("--app-height")
+              root.style.removeProperty("--vv-top")
+              lastHeight = ""
+              lastTop = ""
+            }
+
             function sync() {
+              if (!locked) return
               var vv = window.visualViewport
-              var measured = layoutHeight()
-              if (!locked && measured) full = measured
-              if (!full) full = measured || window.innerHeight || 0
-              var top = locked && vv && vv.offsetTop > 0 ? Math.round(vv.offsetTop) : 0
+              if (!full) full = layoutHeight() || window.innerHeight || 0
+              var top = vv && vv.offsetTop > 0 ? Math.round(vv.offsetTop) : 0
               var height = full + "px"
               var shift = top + "px"
               if (height !== lastHeight) {
@@ -71,59 +81,72 @@ defmodule AssistantWeb.Shell.Layouts do
               return !!(target && target.closest && target.closest("input, textarea, select, [contenteditable='true']"))
             }
 
-            sync()
+            function hold() {
+              full = layoutHeight() || window.innerHeight || 0
+              locked = true
+              root.classList.add("keyboard")
+              sync()
+            }
+
             if (window.visualViewport) {
               window.visualViewport.addEventListener("resize", sync)
               window.visualViewport.addEventListener("scroll", sync)
             }
-            window.addEventListener("scroll", sync, { passive: true })
-            window.addEventListener("orientationchange", function () {
-              locked = false
-              full = 0
-              setTimeout(sync, 400)
-            })
-            window.addEventListener("pageshow", function () {
-              locked = false
-              full = 0
-              sync()
-            })
+            window.addEventListener("scroll", function () {
+              if (locked && window.scrollY) window.scrollTo(0, 0)
+            }, { passive: true })
             document.addEventListener("touchstart", function (event) {
               if (!typing(event.target)) return
               generation += 1
               var token = generation
-              var measured = layoutHeight()
-              if (measured && measured > full) full = measured
-              locked = true
+              hold()
               setTimeout(function () {
                 if (token !== generation || watching) return
-                locked = false
-                sync()
+                release()
               }, 700)
             }, true)
             document.addEventListener("focusin", function (event) {
               if (!typing(event.target)) return
+              if (!locked) {
+                if (window.scrollY) window.scrollTo(0, 0)
+                return
+              }
               generation += 1
-              var measured = layoutHeight()
-              if (measured && measured > full) full = measured
-              locked = true
               if (watching) return
               watching = true
               requestAnimationFrame(watch)
             }, true)
             document.addEventListener("focusout", function () {
+              if (!locked) return
               var token = generation
               watching = false
               setTimeout(function () {
                 if (token !== generation) return
-                locked = false
-                sync()
+                release()
               }, 500)
             }, true)
+            var focus = HTMLElement.prototype.focus
+            HTMLElement.prototype.focus = function (options) {
+              var next = options ? options : {}
+              if (!locked) next.preventScroll = true
+              return focus.call(this, next)
+            }
+            var autofocus = new MutationObserver(function () {
+              var field = document.querySelector("input[autofocus], textarea[autofocus]")
+              if (!field) return
+              field.removeAttribute("autofocus")
+              autofocus.disconnect()
+              field.focus({ preventScroll: true })
+            })
+            autofocus.observe(document.documentElement, { childList: true, subtree: true })
+            document.addEventListener("DOMContentLoaded", function () {
+              autofocus.disconnect()
+            })
           })()
         </script>
         <style>
-          html.ios-pwa,
-          html.ios-pwa body {
+          html.ios-pwa.keyboard,
+          html.ios-pwa.keyboard body {
             position: fixed;
             top: 0;
             right: 0;
@@ -135,7 +158,7 @@ defmodule AssistantWeb.Shell.Layouts do
             overscroll-behavior: none;
           }
 
-          html.ios-pwa .screen-visual {
+          html.ios-pwa.keyboard .screen-visual {
             top: 0;
             bottom: auto;
             height: var(--app-height, 100%);
