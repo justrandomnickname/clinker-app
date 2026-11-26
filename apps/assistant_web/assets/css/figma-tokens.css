@@ -29,6 +29,7 @@
   --shadow-actions: 0 -2px 8px rgb(0 0 0 / 25%);
   --glass-blur: 4px;
   --glass-light: 35%;
+  --actions-height: 98px;
 }
 
 @utility p-figma-* {
@@ -107,17 +108,8 @@
   letter-spacing: 0.96px;
 }
 
-@utility text-safe-input {
-  font-size: var(--text-figma-md);
-  line-height: var(--text-figma-sm--line-height);
-}
-
-@utility screen-visual {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100dvh;
-  overflow: hidden;
+@utility pb-actions {
+  padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md));
 }
 
 @utility bg-actions {

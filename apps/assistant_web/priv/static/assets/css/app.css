@@ -41,6 +41,7 @@
     --shadow-actions: 0 -2px 8px rgb(0 0 0 / 25%);
     --glass-blur: 4px;
     --glass-light: 35%;
+    --actions-height: 98px;
     --color-paper: #f7f7f5;
     --color-ink: #1c1c1c;
     --color-line: #e4e4e0;
@@ -199,13 +200,6 @@
 @layer utilities {
   .visible {
     visibility: visible;
-  }
-  .screen-visual {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100dvh;
-    overflow: hidden;
   }
   .absolute {
     position: absolute;
@@ -391,9 +385,6 @@
   .overflow-y-auto {
     overflow-y: auto;
   }
-  .overscroll-y-contain {
-    overscroll-behavior-y: contain;
-  }
   .rounded {
     border-radius: 0.25rem;
   }
@@ -457,6 +448,9 @@
   .p-figma-lg {
     padding: var(--figma-spacing-lg);
   }
+  .p-figma-md {
+    padding: var(--figma-spacing-md);
+  }
   .p-figma-sm {
     padding: var(--figma-spacing-sm);
   }
@@ -508,6 +502,9 @@
   .pt-figma-md {
     padding-top: var(--figma-spacing-md);
   }
+  .pb-actions {
+    padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md));
+  }
   .pb-figma-md {
     padding-bottom: var(--figma-spacing-md);
   }
@@ -537,10 +534,6 @@
   .text-lg {
     font-size: var(--text-lg);
     line-height: var(--tw-leading, var(--text-lg--line-height));
-  }
-  .text-safe-input {
-    font-size: var(--text-figma-md);
-    line-height: var(--text-figma-sm--line-height);
   }
   .text-sm {
     font-size: var(--text-sm);
@@ -636,12 +629,6 @@
   .lg\:bg-white {
     @media (width >= 64rem) {
       background-color: var(--color-white);
-    }
-  }
-  .lg\:text-figma-sm {
-    @media (width >= 64rem) {
-      font-size: var(--text-figma-sm);
-      line-height: var(--tw-leading, var(--text-figma-sm--line-height));
     }
   }
 }
