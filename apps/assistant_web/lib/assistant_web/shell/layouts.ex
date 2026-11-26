@@ -43,7 +43,10 @@ defmodule AssistantWeb.Shell.Layouts do
               this.sync = () => {
                 const vv = window.visualViewport
                 if (!vv) return
-                const inset = Math.max(0, window.innerHeight - vv.offsetTop - vv.height)
+                const covered = window.innerHeight - vv.height
+                const inset = covered < 150 ? 0 : Math.max(0, covered - vv.offsetTop)
+                if (this.inset === inset) return
+                this.inset = inset
                 this.el.style.setProperty("--keyboard-inset", inset + "px")
               }
               this.sync()
