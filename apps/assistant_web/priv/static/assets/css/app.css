@@ -225,9 +225,6 @@
   .top-safe-xl {
     top: max(var(--figma-spacing-xl), env(safe-area-inset-top, 0px));
   }
-  .bottom-0 {
-    bottom: calc(var(--spacing) * 0);
-  }
   .bottom-keyboard {
     bottom: var(--keyboard-inset, 0px);
   }
@@ -536,6 +533,9 @@
   }
   .pb-figma-xl {
     padding-bottom: var(--figma-spacing-xl);
+  }
+  .pb-keyboard {
+    padding-bottom: var(--keyboard-inset, 0px);
   }
   .pb-safe-lg {
     padding-bottom: calc(var(--figma-spacing-lg) + env(safe-area-inset-bottom, 0px));
