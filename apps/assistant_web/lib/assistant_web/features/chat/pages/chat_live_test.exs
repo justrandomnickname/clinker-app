@@ -186,6 +186,50 @@ defmodule AssistantWeb.Features.Chat.Pages.ChatLiveTest do
              live(build_conn(), "/chat/бытовое")
   end
 
+  test "the burger opens the menu, add starts a chat, and close hides it" do
+    chat("Старый")
+
+    {:ok, view, _html} = live(build_conn(), "/chat")
+    html = render_async(view, 1_000)
+    refute html =~ "id=\"chat-menu\""
+
+    html = view |> element("#chats") |> render_click()
+    assert html =~ "id=\"chat-menu\""
+
+    view |> element("#menu-add") |> render_click()
+    html = render_async(view, 1_000)
+    refute html =~ "id=\"chat-menu\""
+
+    [new, older] = Assistant.list_chats()
+    assert new.title == "Новый чат"
+    assert older.title == "Старый"
+
+    html = view |> element("#chats") |> render_click()
+    assert html =~ "id=\"chat-menu\""
+    html = view |> element("#close-menu") |> render_click()
+    refute html =~ "id=\"chat-menu\""
+  end
+
+  test "switch context opens a modal over the menu and the overlay closes it" do
+    {:ok, view, _html} = live(build_conn(), "/chat")
+    render_async(view, 1_000)
+    view |> element("#chats") |> render_click()
+    refute render(view) =~ "id=\"context-modal\""
+
+    html = view |> element("#switch-context") |> render_click()
+    assert html =~ "id=\"context-modal\""
+    assert html =~ "id=\"chat-menu\""
+
+    html = view |> element("#context-overlay") |> render_click()
+    refute html =~ "id=\"context-modal\""
+    assert html =~ "id=\"chat-menu\""
+
+    view |> element("#switch-context") |> render_click()
+
+    assert {:error, {:live_redirect, %{to: "/chat/testctx"}}} =
+             view |> form("#context-switch", %{text: "Testctx"}) |> render_submit()
+  end
+
   test "a broken address returns to the entrance" do
     assert {:error, {:live_redirect, %{to: "/"}}} = live(build_conn(), "/chat/---")
   end

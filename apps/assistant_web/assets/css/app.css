@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "./figma-tokens.css";
 @import "./fonts.css";
-@import "./markdown.css";
 
 @theme {
   --font-sans: "News Cycle", ui-sans-serif, sans-serif;

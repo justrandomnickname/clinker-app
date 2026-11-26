@@ -2,6 +2,7 @@
   --color-brand: #ffcb56;
   --color-brand-light: #ffec91;
   --color-brand-tint-50: #ffcb5680;
+  --color-brand-tint-25: #ffcb5640;
   --color-primary: #f5f7f8;
   --color-secondary: #45474b;
   --color-secondary-tint-50: #45474b80;
@@ -13,6 +14,7 @@
   --radius-bttn-sm: 6px;
   --radius-bttn-md: 12px;
   --radius-bttn-lg: 20px;
+  --radius-full: 100px;
   --text-figma-sm: 12px;
   --text-figma-sm--line-height: 20px;
   --text-figma-md: 16px;
@@ -20,8 +22,14 @@
   --text-figma-lg: 20px;
   --text-figma-lg--line-height: 33px;
   --shadow-brand: 0 4px 8px var(--color-brand-tint-50), 0 -1px 4px var(--color-secondary-tint-50);
+  --shadow-burger: 0 0 7px 6px var(--color-brand-tint-50);
+  --shadow-add: 0 0 6px 2px var(--color-secondary-tint-50);
   --shadow-input: inset 0 2px 4px var(--color-secondary-tint-50);
   --shadow-message: 4px 4px 3px rgb(0 0 0 / 25%);
+  --shadow-actions: 0 -2px 8px rgb(0 0 0 / 25%);
+  --glass-blur: 4px;
+  --glass-light: 35%;
+  --actions-height: 98px;
 }
 
 @utility p-figma-* {
@@ -68,6 +76,14 @@
   gap: --value(--figma-spacing-*);
 }
 
+@utility top-figma-* {
+  top: --value(--figma-spacing-*);
+}
+
+@utility left-figma-* {
+  left: --value(--figma-spacing-*);
+}
+
 @utility w-menu {
   width: 328px;
 }
@@ -76,10 +92,35 @@
   width: 600px;
 }
 
+@utility w-context-field {
+  width: 200px;
+}
+
+@utility backdrop-blur-overlay {
+  backdrop-filter: blur(2px);
+}
+
 @utility gap-chat {
   gap: 10px;
 }
 
 @utility tracking-bttn {
   letter-spacing: 0.96px;
+}
+
+@utility pb-actions {
+  padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md));
+}
+
+@utility bg-actions {
+  background-color: var(--color-brand-tint-25);
+  background-image: linear-gradient(
+    -45deg,
+    transparent 18%,
+    rgb(255 255 255 / var(--glass-light)) 46%,
+    transparent 68%
+  );
+  box-shadow: var(--shadow-actions);
+  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) url("#actions-glass");
 }

@@ -12,19 +12,8 @@ defmodule AssistantWeb.Features.Cards.Pages.CardsLive.Log do
 
   def tags(_), do: []
 
-  def html(body) when is_binary(body) do
-    body
-    |> link_slugs()
-    |> MDEx.to_html!(
-      extension: [strikethrough: true, table: true, autolink: true, tasklist: true],
-      sanitize: MDEx.Document.default_sanitize_options(),
-      syntax_highlight: nil,
-      auto_close: true
-    )
-    |> Phoenix.HTML.raw()
-  end
-
-  def html(_), do: Phoenix.HTML.raw("")
+  def linked(body) when is_binary(body), do: link_slugs(body)
+  def linked(_), do: ""
 
   defp link_slugs(body) do
     Regex.replace(~r/\[\[([a-z0-9-]{1,64})\]\]/, body, fn _, slug ->

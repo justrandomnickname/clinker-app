@@ -1,0 +1,34 @@
+<div
+  :if={@open}
+  id="context-modal"
+  class="fixed inset-0 z-30 flex items-center justify-center lg:hidden"
+>
+  <button
+    type="button"
+    id="context-overlay"
+    aria-label="Закрыть"
+    phx-click="close_context_modal"
+    class="absolute inset-0 border-0 bg-secondary-tint-50 p-0 backdrop-blur-overlay"
+  ></button>
+  <form
+    id="context-switch"
+    class="relative z-10 flex flex-col items-center gap-figma-sm rounded-bttn-md bg-primary px-figma-lg py-figma-lg"
+    phx-change="context_draft"
+    phx-submit="enter_context"
+  >
+    <div class="flex items-center gap-figma-lg">
+      <input
+        id="context-field"
+        type="text"
+        name="text"
+        value={@draft}
+        placeholder="Введите контекст"
+        autocomplete="off"
+        autofocus
+        class="h-8 w-context-field rounded-bttn-lg bg-primary px-figma-lg py-figma-sm font-sans text-figma-sm text-secondary shadow-input outline-none placeholder:text-secondary"
+      /> <CircleButton.circle_button type="submit" aria-label="Открыть" />
+    </div>
+    
+    <p :if={@reason} class="font-sans text-figma-sm text-reason">{@reason}</p>
+  </form>
+</div>

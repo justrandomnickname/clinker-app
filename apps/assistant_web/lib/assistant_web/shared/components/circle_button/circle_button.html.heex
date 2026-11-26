@@ -1,8 +1,14 @@
 <button
   type={@type}
   disabled={@disabled}
-  class="inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-bttn-lg bg-brand p-figma-sm shadow-brand"
+  class={[
+    "inline-flex shrink-0 items-center justify-center overflow-hidden p-figma-sm",
+    @variant in ["Send", "Close"] && "size-8 rounded-full bg-brand shadow-brand",
+    @variant == "Switch-Context" && "size-8 rounded-bttn-lg bg-brand shadow-brand",
+    @variant == "Burger" && "size-8 rounded-bttn-lg bg-brand shadow-burger",
+    @variant == "Add" && "size-11 rounded-bttn-lg bg-primary shadow-add"
+  ]}
   {@rest}
 >
-  <img src="/icons/send.svg" width="16" height="16" alt="" />
+  <Icon.icon variant={@variant} />
 </button>

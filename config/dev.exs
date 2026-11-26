@@ -5,7 +5,8 @@ config :logger, level: :info
 config :assistant_web, AssistantWeb.Endpoint,
   code_reloader: true,
   watchers: [
-    tailwind: {Tailwind, :install_and_run, [:assistant_web, ~w(--watch=always)]}
+    tailwind: {Tailwind, :install_and_run, [:assistant_web, ~w(--watch=always)]},
+    markdown: {Tailwind, :install_and_run, [:markdown, ~w(--watch=always)]}
   ],
   live_reload: [
     patterns: [

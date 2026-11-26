@@ -1,7 +1,7 @@
 defmodule AssistantWeb.Features.Chat.Components.ChatWindow do
   use Phoenix.Component
 
-  alias AssistantWeb.Features.Chat.Components.ChatWindow.Markdown
+  alias AssistantWeb.Shared.Components.Markdown
   alias Phoenix.LiveView.AsyncResult
 
   embed_templates("chat_window*")

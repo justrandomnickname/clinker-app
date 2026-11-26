@@ -1,5 +1,14 @@
-defmodule AssistantWeb.Features.Chat.Components.ChatWindow.Markdown do
-  def render(markdown) when is_binary(markdown) do
+defmodule AssistantWeb.Shared.Components.Markdown do
+  use Phoenix.Component
+
+  embed_templates("markdown*")
+
+  attr :source, :string, required: true
+  attr :class, :any, default: nil
+
+  def markdown(assigns)
+
+  def html(markdown) when is_binary(markdown) do
     markdown
     |> MDEx.to_html!(
       extension: [

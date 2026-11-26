@@ -3,6 +3,7 @@ defmodule AssistantWeb.Features.Cards.Pages.CardsLive do
   use AssistantWeb.Shared.Page
 
   alias AssistantWeb.Features.Cards.Pages.CardsLive.{Event, Log, Request}
+  alias AssistantWeb.Shared.Components.Markdown
 
   def mount(_params, _session, socket) do
     {:ok, Request.boot(socket)}

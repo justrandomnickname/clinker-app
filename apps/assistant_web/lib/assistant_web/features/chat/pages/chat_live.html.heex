@@ -1,9 +1,25 @@
 <div class="flex h-screen bg-primary">
-  <ChatList.chat_list chats={@chats} />
+  <div class="hidden h-full shrink-0 lg:flex">
+    <ChatList.chat_list chats={@chats} />
+  </div>
   <main class="flex min-w-0 flex-1 items-center justify-center bg-white">
-    <div class="flex h-full w-chat flex-col gap-chat bg-primary">
+    <div class="relative flex h-full w-full flex-col gap-chat bg-primary lg:w-chat">
+      <div class="absolute top-figma-xl left-figma-lg z-10 lg:hidden">
+        <CircleButton.circle_button
+          id="chats"
+          variant="Burger"
+          aria-label="Чаты"
+          phx-click="open_menu"
+        />
+      </div>
       <ChatWindow.chat_window messages={@messages} />
       <ChatInput.chat_input draft={@draft} phase={@phase} meter={@meter} />
     </div>
   </main>
+  <ChatMenu.chat_menu chats={@chats} open={@menu} />
+  <ContextModal.context_modal
+    open={@context_modal}
+    draft={@context_draft}
+    reason={@context_reason}
+  />
 </div>

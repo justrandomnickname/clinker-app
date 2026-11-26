@@ -10,6 +10,13 @@ config :tailwind,
       --output=priv/static/assets/css/app.css
     ),
     cd: Path.expand("../apps/assistant_web", __DIR__)
+  ],
+  markdown: [
+    args: ~w(
+      --input=lib/assistant_web/shared/components/markdown/markdown.css
+      --output=priv/static/assets/css/markdown.css
+    ),
+    cd: Path.expand("../apps/assistant_web", __DIR__)
   ]
 config :assistant, ecto_repos: [Assistant.Repo]
 

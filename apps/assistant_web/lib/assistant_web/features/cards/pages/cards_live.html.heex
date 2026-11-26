@@ -58,7 +58,7 @@
               <span :if={card.broken}>битый файл</span>
             </p>
             <pre :if={card.broken} class="mt-4 whitespace-pre-wrap">{card.body}</pre>
-            <div :if={!card.broken} class="markdown mt-4">{Log.html(card.body)}</div>
+            <Markdown.markdown :if={!card.broken} source={Log.linked(card.body)} class="mt-4" />
             <p :if={card.incoming != []} class="mt-6 text-sm">
               Ссылаются
               <.link

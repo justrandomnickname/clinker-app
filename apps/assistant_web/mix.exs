@@ -37,8 +37,8 @@ defmodule AssistantWeb.MixProject do
 
   defp aliases do
     [
-      "assets.build": ["tailwind assistant_web"],
-      "assets.deploy": ["tailwind assistant_web --minify"]
+      "assets.build": ["tailwind assistant_web", "tailwind markdown"],
+      "assets.deploy": ["tailwind assistant_web --minify", "tailwind markdown --minify"]
     ]
   end
 end

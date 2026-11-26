@@ -18,11 +18,31 @@ defmodule AssistantWeb.Features.Chat.Pages.ChatLive.Screen do
     |> LiveView.start_async(:meter, fn -> Assistant.meter(chat_id) end)
   end
 
+  def open_menu(socket), do: assign(socket, :menu, true)
+
+  def close_menu(socket) do
+    socket
+    |> close_context_modal()
+    |> assign(:menu, false)
+  end
+
+  def open_context_modal(socket) do
+    assign(socket, context_modal: true, context_draft: "", context_reason: nil)
+  end
+
+  def close_context_modal(socket) do
+    assign(socket, context_modal: false, context_draft: "", context_reason: nil)
+  end
+
   def reset(socket, assigns) do
     assign(
       socket,
       Keyword.merge(
         [
+          menu: false,
+          context_modal: false,
+          context_draft: "",
+          context_reason: nil,
           draft: "",
           reason: nil,
           messages: AsyncResult.loading(),

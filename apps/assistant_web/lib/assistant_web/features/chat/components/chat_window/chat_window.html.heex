@@ -1,4 +1,4 @@
-<div id="log" class="flex min-h-0 w-full flex-1 flex-col gap-chat overflow-y-auto p-figma-md">
+<div id="log" class="flex min-h-0 w-full flex-1 flex-col gap-chat overflow-y-auto p-figma-md pb-actions">
   <.async_result :let={messages} assign={@messages}>
     <:failed>Не удалось прочитать сообщения</:failed>
     <article
@@ -7,15 +7,15 @@
       class={[
         "text-figma-md text-secondary",
         message.role == "user" &&
-          "w-full rounded-bttn-md bg-brand-light px-figma-md py-figma-lg text-right whitespace-pre-wrap shadow-message",
-        message.role != "user" && "chat-copy markdown w-full"
+          "w-full rounded-bttn-md bg-brand-light px-figma-md py-figma-lg text-right shadow-message"
       ]}
     >
-      {if message.role == "user" do
-        message.content
-      else
-        Markdown.render(message.content)
-      end}
+      <div :if={message.role == "user"} class="whitespace-pre-wrap">{message.content}</div>
+      <Markdown.markdown
+        :if={message.role != "user"}
+        source={message.content}
+        class="chat-copy w-full"
+      />
     </article>
   </.async_result>
 </div>

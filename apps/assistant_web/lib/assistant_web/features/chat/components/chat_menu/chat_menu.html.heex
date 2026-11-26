@@ -1,0 +1,57 @@
+<aside
+  :if={@open}
+  id="chat-menu"
+  class="fixed inset-0 z-20 flex flex-col gap-figma-lg overflow-y-auto bg-brand lg:hidden"
+>
+  <div class="flex w-full shrink-0 items-start justify-end gap-figma-xl bg-white px-figma-lg py-figma-xl">
+    <CircleButton.circle_button
+      id="switch-context"
+      variant="Switch-Context"
+      aria-label="Контекст"
+      phx-click="open_context_modal"
+    />
+    <CircleButton.circle_button
+      id="close-menu"
+      variant="Close"
+      aria-label="Закрыть"
+      phx-click="close_menu"
+    />
+  </div>
+  
+  <.async_result :let={chats} assign={@chats}>
+    <:failed>Не удалось прочитать чаты</:failed>
+    
+    <div :for={chat <- chats} class="flex w-full items-center justify-between px-figma-lg">
+      <button
+        type="button"
+        id={"menu-chat-#{chat.id}"}
+        phx-click="select_chat"
+        phx-value-id={chat.id}
+        class="min-w-0 flex-1 truncate text-left font-sans text-figma-md text-secondary"
+      >
+        {chat.title}
+      </button>
+      
+      <button
+        type="button"
+        id={"menu-delete-chat-#{chat.id}"}
+        phx-click="delete_chat"
+        phx-value-id={chat.id}
+        data-confirm="Удалить чат?"
+        aria-label="Удалить чат"
+        class="shrink-0"
+      >
+        <img src="/icons/close.svg" width="16" height="16" alt="" />
+      </button>
+    </div>
+  </.async_result>
+  
+  <div class="flex w-full items-center justify-center p-figma-lg">
+    <CircleButton.circle_button
+      id="menu-add"
+      variant="Add"
+      aria-label="Новый чат"
+      phx-click="new_chat"
+    />
+  </div>
+</aside>
