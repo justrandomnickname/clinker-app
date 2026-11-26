@@ -88,6 +88,10 @@
   bottom: --value(--figma-spacing-*);
 }
 
+@utility bottom-safe-xl {
+  bottom: calc(var(--figma-spacing-xl) + env(safe-area-inset-bottom, 0px));
+}
+
 @utility w-menu {
   width: 328px;
 }
@@ -116,13 +120,22 @@
   letter-spacing: 0.96px;
 }
 
+@utility pb-figma-safe-md {
+  padding-bottom: calc(var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
+}
+
 @utility pb-actions {
-  padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md));
+  padding-bottom: calc(
+    var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px)
+  );
 }
 
 @utility pb-actions-card {
   padding-bottom: calc(
-    var(--actions-height) + var(--figma-spacing-xl) + var(--figma-spacing-md)
+    var(--actions-height) +
+      var(--figma-spacing-xl) +
+      var(--figma-spacing-md) +
+      env(safe-area-inset-bottom, 0px)
   );
 }
 

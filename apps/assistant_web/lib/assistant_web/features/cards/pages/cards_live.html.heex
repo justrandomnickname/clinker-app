@@ -13,7 +13,7 @@
         class="w-full rounded-md border border-line bg-white px-3 py-2"
       />
     </form>
-    <div id="card-list" class="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-2">
+    <div id="card-list" class="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-2 pt-2 pb-2-safe">
       <.async_result :let={cards} assign={@cards}>
         <:loading>Загрузка</:loading>
         <:failed>Не удалось прочитать карточки</:failed>
@@ -41,7 +41,7 @@
       </.async_result>
     </div>
   </aside>
-  <main class="flex min-w-0 flex-1 flex-col px-4 pt-4">
+  <main class="flex min-w-0 flex-1 flex-col px-4 pt-4 pb-safe">
     <div class="mx-auto flex w-full max-w-2xl flex-1 flex-col">
       <%= if @slug do %>
         <.async_result :let={card} assign={@card}>

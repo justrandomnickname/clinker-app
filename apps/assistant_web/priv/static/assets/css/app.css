@@ -222,11 +222,20 @@
     bottom: env(safe-area-inset-bottom, 0px);
     left: env(safe-area-inset-left, 0px);
   }
+  .inset-safe-top {
+    top: env(safe-area-inset-top, 0px);
+    right: env(safe-area-inset-right, 0px);
+    bottom: 0px;
+    left: env(safe-area-inset-left, 0px);
+  }
   .top-figma-xl {
     top: var(--figma-spacing-xl);
   }
   .bottom-figma-xl {
     bottom: var(--figma-spacing-xl);
+  }
+  .bottom-safe-xl {
+    bottom: calc(var(--figma-spacing-xl) + env(safe-area-inset-bottom, 0px));
   }
   .left-figma-lg {
     left: var(--figma-spacing-lg);
@@ -291,7 +300,7 @@
     height: 100%;
   }
   .h-safe {
-    height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - env(safe-area-inset-top, 0px));
   }
   .max-h-32 {
     max-height: calc(var(--spacing) * 32);
@@ -335,8 +344,17 @@
   .flex-1 {
     flex: 1;
   }
+  .flex-shrink {
+    flex-shrink: 1;
+  }
   .shrink-0 {
     flex-shrink: 0;
+  }
+  .border-collapse {
+    border-collapse: collapse;
+  }
+  .resize {
+    resize: both;
   }
   .resize-none {
     resize: none;
@@ -509,14 +527,23 @@
   .py-figma-xl {
     padding-block: var(--figma-spacing-xl);
   }
+  .pt-2 {
+    padding-top: calc(var(--spacing) * 2);
+  }
   .pt-3 {
     padding-top: calc(var(--spacing) * 3);
   }
   .pt-4 {
     padding-top: calc(var(--spacing) * 4);
   }
+  .pb-2-safe {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  }
   .pb-actions-card {
-    padding-bottom: calc( var(--actions-height) + var(--figma-spacing-xl) + var(--figma-spacing-md) );
+    padding-bottom: calc( var(--actions-height) + var(--figma-spacing-xl) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px) );
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .text-center {
     text-align: center;
@@ -577,6 +604,9 @@
   .no-underline {
     text-decoration-line: none;
   }
+  .underline {
+    text-decoration-line: underline;
+  }
   .shadow-add {
     --tw-shadow: 0 0 6px 2px var(--tw-shadow-color, var(--color-secondary-tint-50));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -597,8 +627,16 @@
     --tw-shadow: 4px 4px 3px var(--tw-shadow-color, rgb(0 0 0 / 25%));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
+  .outline {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
   .filter {
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
+  }
+  .backdrop-filter {
+    -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+    backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   }
   .backdrop-blur-overlay {
     backdrop-filter: blur(2px);
@@ -664,12 +702,17 @@
   }
   .lg\:pb-actions {
     @media (width >= 64rem) {
-      padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md));
+      padding-bottom: calc( var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px) );
     }
   }
   .lg\:pb-figma-md {
     @media (width >= 64rem) {
       padding-bottom: var(--figma-spacing-md);
+    }
+  }
+  .lg\:pb-figma-safe-md {
+    @media (width >= 64rem) {
+      padding-bottom: calc(var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
     }
   }
 }
@@ -726,7 +769,9 @@ html {
   height: 100vh;
   height: 100dvh;
   background: var(--color-paper);
-  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
 }
 body {
   display: flex;
@@ -819,6 +864,11 @@ body > [data-phx-main] > :first-child {
   inherits: false;
   initial-value: 0 0 #0000;
 }
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
 @property --tw-blur {
   syntax: "*";
   inherits: false;
@@ -872,6 +922,42 @@ body > [data-phx-main] > :first-child {
   syntax: "*";
   inherits: false;
 }
+@property --tw-backdrop-blur {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-brightness {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-contrast {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-grayscale {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-hue-rotate {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-invert {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-opacity {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-saturate {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-sepia {
+  syntax: "*";
+  inherits: false;
+}
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
@@ -891,6 +977,7 @@ body > [data-phx-main] > :first-child {
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-outline-style: solid;
       --tw-blur: initial;
       --tw-brightness: initial;
       --tw-contrast: initial;
@@ -904,6 +991,15 @@ body > [data-phx-main] > :first-child {
       --tw-drop-shadow-color: initial;
       --tw-drop-shadow-alpha: 100%;
       --tw-drop-shadow-size: initial;
+      --tw-backdrop-blur: initial;
+      --tw-backdrop-brightness: initial;
+      --tw-backdrop-contrast: initial;
+      --tw-backdrop-grayscale: initial;
+      --tw-backdrop-hue-rotate: initial;
+      --tw-backdrop-invert: initial;
+      --tw-backdrop-opacity: initial;
+      --tw-backdrop-saturate: initial;
+      --tw-backdrop-sepia: initial;
     }
   }
 }
