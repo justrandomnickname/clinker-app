@@ -29,7 +29,6 @@
   --shadow-actions: 0 -2px 8px rgb(0 0 0 / 25%);
   --glass-blur: 4px;
   --glass-light: 35%;
-  --actions-height: 98px;
 }
 
 @utility p-figma-* {
@@ -106,10 +105,6 @@
 
 @utility tracking-bttn {
   letter-spacing: 0.96px;
-}
-
-@utility pb-actions {
-  padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
 }
 
 @utility px-safe-lg {

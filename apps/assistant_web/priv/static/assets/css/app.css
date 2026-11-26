@@ -41,7 +41,6 @@
     --shadow-actions: 0 -2px 8px rgb(0 0 0 / 25%);
     --glass-blur: 4px;
     --glass-light: 35%;
-    --actions-height: 98px;
     --color-paper: #f7f7f5;
     --color-ink: #1c1c1c;
     --color-line: #e4e4e0;
@@ -518,9 +517,6 @@
   .px-safe-lg {
     padding-left: max(var(--figma-spacing-lg), env(safe-area-inset-left, 0px));
     padding-right: max(var(--figma-spacing-lg), env(safe-area-inset-right, 0px));
-  }
-  .pb-actions {
-    padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md) + env(safe-area-inset-bottom, 0px));
   }
   .pb-figma-xl {
     padding-bottom: var(--figma-spacing-xl);
