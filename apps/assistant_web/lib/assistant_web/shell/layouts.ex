@@ -26,18 +26,32 @@ defmodule AssistantWeb.Shell.Layouts do
             }
 
             var full = window.innerHeight || 0
+            var focused = false
+            var frame = 0
+            var shift = ""
             if (full) root.style.setProperty("--app-height", full + "px")
 
-            function still() {
-              if (window.scrollX || window.scrollY) window.scrollTo(0, 0)
-              if (document.body && document.body.scrollTop) document.body.scrollTop = 0
-              var shell = document.querySelector(".screen-visual")
-              if (shell && shell.scrollTop) shell.scrollTop = 0
-              var nodes = [root, document.body, shell, document.getElementById("log")]
-              for (var i = 0; i < nodes.length; i++) {
-                var node = nodes[i]
-                if (node && node.style && node.style.paddingTop) node.style.paddingTop = ""
+            function glue() {
+              var layer = document.body
+              if (!layer) return
+              var vv = window.visualViewport
+              var top = vv && vv.offsetTop > 0 ? Math.round(vv.offsetTop) : 0
+              var next = top ? "translate3d(0," + top + "px,0)" : ""
+              if (next !== shift) {
+                layer.style.transform = next
+                shift = next
               }
+              if (window.scrollX || window.scrollY) window.scrollTo(0, 0)
+            }
+
+            function watch() {
+              if (!focused) return
+              glue()
+              frame = requestAnimationFrame(watch)
+            }
+
+            function typing(target) {
+              return !!(target && target.closest && target.closest("input, textarea, select, [contenteditable='true']"))
             }
 
             function strip() {
@@ -45,21 +59,52 @@ defmodule AssistantWeb.Shell.Layouts do
               for (var i = 0; i < fields.length; i++) fields[i].removeAttribute("autofocus")
             }
 
-            still()
+            glue()
             if (window.visualViewport) {
-              window.visualViewport.addEventListener("scroll", still)
+              window.visualViewport.addEventListener("scroll", glue)
+              window.visualViewport.addEventListener("resize", glue)
             }
-            window.addEventListener("scroll", still, { passive: true })
+            window.addEventListener("scroll", glue, { passive: true })
             window.addEventListener("orientationchange", function () {
-              full = 0
               setTimeout(function () {
+                if (focused) return
                 full = window.innerHeight || 0
                 if (full) root.style.setProperty("--app-height", full + "px")
-                still()
+                glue()
               }, 400)
             })
-            document.addEventListener("focusin", still, true)
-            document.addEventListener("focusout", still, true)
+            document.addEventListener("touchstart", function (event) {
+              if (!typing(event.target)) return
+              if (!focused) {
+                focused = true
+                frame = requestAnimationFrame(watch)
+              }
+              glue()
+              setTimeout(function () {
+                if (typing(document.activeElement)) return
+                focused = false
+                cancelAnimationFrame(frame)
+                glue()
+              }, 700)
+            }, true)
+            document.addEventListener("focusin", function (event) {
+              if (!typing(event.target)) return
+              if (!focused) {
+                focused = true
+                frame = requestAnimationFrame(watch)
+              }
+              glue()
+            }, true)
+            document.addEventListener("focusout", function () {
+              focused = false
+              cancelAnimationFrame(frame)
+              var settle = function () {
+                glue()
+                var vv = window.visualViewport
+                if (vv && vv.offsetTop > 0) requestAnimationFrame(settle)
+              }
+              settle()
+            }, true)
             var focus = HTMLElement.prototype.focus
             HTMLElement.prototype.focus = function (options) {
               var next = options ? options : {}
