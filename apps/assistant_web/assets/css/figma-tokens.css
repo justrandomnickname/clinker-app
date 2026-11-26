@@ -120,6 +120,12 @@
   padding-bottom: calc(var(--actions-height) + var(--figma-spacing-md));
 }
 
+@utility pb-actions-card {
+  padding-bottom: calc(
+    var(--actions-height) + var(--figma-spacing-xl) + var(--figma-spacing-md)
+  );
+}
+
 @utility bg-actions {
   background-color: var(--color-brand-tint-25);
   background-image: linear-gradient(
